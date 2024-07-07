@@ -34,7 +34,7 @@ function Sidebar() {
 
   const logOut = () => {
     setUser({ accessToken: "", refreshToken: "", name: "", isLogged: false });
-    navigate("/");
+    navigate("/account/login");
   };
 
   return (
