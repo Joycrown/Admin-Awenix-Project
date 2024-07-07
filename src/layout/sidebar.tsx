@@ -33,7 +33,13 @@ function Sidebar() {
   const navigate = useNavigate();
 
   const logOut = () => {
-    setUser({ accessToken: "", refreshToken: "", name: "", isLogged: false });
+    setUser({
+      accessToken: "",
+      refreshToken: "",
+      name: "",
+      isLogged: false,
+      userType: "",
+    });
     navigate("/account/login");
   };
 

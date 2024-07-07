@@ -35,9 +35,17 @@ function ProtectedRoutes() {
         name: "",
         accessToken: "",
         refreshToken: "",
+        userType: "",
         isLogged: false,
       });
       navigate("/account/login");
+      return;
+    }
+
+    if (user.userType === "user") {
+      const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
+      toast.error("You are not authorized...");
+      window.location.href = `${endpoint}/account/login`;
       return;
     }
 
@@ -71,6 +79,7 @@ function ProtectedRoutes() {
             name: "",
             accessToken: "",
             refreshToken: "",
+            userType: "",
             isLogged: false,
           });
 

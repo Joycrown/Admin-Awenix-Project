@@ -9,6 +9,7 @@ export const AuthContext = createContext({
     accessToken: "",
     name: "",
     refreshToken: "",
+    userType: "",
     isLogged: false,
   },
   setUser: (value: userProps) => {
@@ -25,6 +26,7 @@ export const AuthProvider = ({ children }: any) => {
     accessToken: "",
     name: "",
     refreshToken: "",
+    userType: "",
     isLogged: false,
   };
 

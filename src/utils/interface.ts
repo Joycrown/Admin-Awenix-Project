@@ -2,6 +2,7 @@ export interface userProps {
   accessToken: string;
   refreshToken: string;
   name: string;
+  userType: string;
   isLogged: boolean
 }
 

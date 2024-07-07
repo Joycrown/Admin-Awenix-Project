@@ -46,12 +46,14 @@ function Login() {
         },
       })
       .then((res) => {
-        const { access_token, refresh_token, current_user } = res.data;
+        const { access_token, refresh_token, current_user, user_type } =
+          res.data;
 
         setUser({
           accessToken: access_token,
           refreshToken: refresh_token,
           name: current_user,
+          userType: user_type,
           isLogged: true,
         });
 
