@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: "Poppins", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1 {
+  font-size: 54px;
+}
+
+h2 {
+  font-size: 40px;
+}
+
+h3 {
+  font-size: 35px;
+}
+
+img {
+  width: 100%;
+  margin: auto;
+}
+
+/* React swiper pagination style */
+.swiper {
+  --swiper-pagination-color: #D9261F;
+  --swiper-pagination-bullet-inactive-color: #fff;
+  --swiper-pagination-bullet-inactive-opacity: 0.7;
+  --swiper-pagination-bullet-size: 9px;
+  --swiper-pagination-bullet-horizontal-gap: 4px;
+}
+
+.swiper-pagination-bullet-active {
+  outline: 2px solid white;
+  transition-duration: 500ms;
+}
+
+/* Article styles */
+article p ul {
+  list-style-type: disc !important;
+  margin: 1em
+}
+
+.article .swiper {
+  position: static;
+  padding-bottom: 10px;
+  --swiper-navigation-size: 20px;
+  --swiper-navigation-color: red;
+  --swiper-navigation-sides-offset: -20px;
+}
+
+.article .swiper-horizontal>.swiper-scrollbar,
+.swiper-scrollbar.swiper-scrollbar-horizontal {
+  position: relative;
+  margin-top: 7px;
+}
+
+@media only screen and (max-width: 785px) {
+  .article .swiper {
+    --swiper-navigation-size: 20px;
+    --swiper-navigation-sides-offset: -10px;
+  }
+}
+
+@media only screen and (max-width: 685px) {
+  .article .swiper {
+    --swiper-navigation-size: 0;
+    --swiper-navigation-sides-offset: -10px;
+  }
+}
+
+@media only screen and (max-width: 485px) {
+  :root {
+    font-size: 12px;
+  }
+
+  h1 {
+    font-size: 25px;
+  }
+
+  h2 {
+    font-size: 22px;
+  }
+
+  h3 {
+    font-size: 18px;
+  }
+}
