@@ -3,7 +3,8 @@ export interface userProps {
   refreshToken: string;
   name: string;
   userType: string;
-  isLogged: boolean
+  isLogged: boolean;
+  id: string;
 }
 
 export interface productProps {

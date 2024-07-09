@@ -3,42 +3,11 @@ import { useEffect, useState } from "react";
 import ProductCard from "../components/productCard";
 import { useAuthContext } from "../utils/authContext";
 import { useLocation, useNavigate } from "react-router-dom";
+import { productProps } from "../utils/interface";
 
 function Product() {
   const { user } = useAuthContext();
-  const [products, setProducts] = useState([
-    {
-      id: 4,
-      name: "maize",
-      description: "maize",
-      price: 450,
-      product_image:
-        "https://awenixproject-ivqm5btk.b4a.run/staticfiles/productImages/4088880c9c4e4e806705.jpg",
-      created_by: "joycrown",
-      size: "kg",
-      creator: {
-        id: "joycrown",
-        first_name: "Joycrown",
-        last_name: "joycrown",
-        email: "joycrowntech@gmail.com",
-        phone_no: "string",
-        user_type: "super admin",
-        created_at: "2024-06-23T22:16:15.837277Z",
-      },
-      created_at: "2024-06-23T23:23:34.602571Z",
-      last_edited_by: "joycrown",
-      editor: {
-        id: "joycrown",
-        first_name: "Joycrown",
-        last_name: "joycrown",
-        email: "joycrowntech@gmail.com",
-        phone_no: "string",
-        user_type: "super admin",
-        created_at: "2024-06-23T22:16:15.837277Z",
-      },
-      updated_at: "2024-06-24T00:09:53.708941Z",
-    },
-  ]);
+  const [products, setProducts] = useState<productProps[]>([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const location = useLocation();

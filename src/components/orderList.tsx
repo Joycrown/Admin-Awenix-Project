@@ -1,7 +1,13 @@
 import { months } from "../utils/data";
 import { orderProps } from "../utils/interface";
 
-function OrderList({ orders }: { orders: orderProps[] }) {
+function OrderList({
+  orders,
+  loading,
+}: {
+  orders: orderProps[];
+  loading: boolean;
+}) {
   return (
     <div className="max-h-screen h-full overflow-y-auto">
       <div className="flex items-center lg:justify-center w-full max-lg:overflow-x-auto">
@@ -17,6 +23,7 @@ function OrderList({ orders }: { orders: orderProps[] }) {
             </tr>
           </thead>
           <tbody className="border bg-white">
+            {loading && <p className="p-4 w-full">Loading...</p>}
             {orders.map(
               ({
                 order_id,

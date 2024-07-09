@@ -46,8 +46,10 @@ function Login() {
         },
       })
       .then((res) => {
-        const { access_token, refresh_token, current_user, user_type } =
+        const { access_token, refresh_token, current_user, user_type, id } =
           res.data;
+
+        console.log(res.data);
 
         setUser({
           accessToken: access_token,
@@ -55,6 +57,7 @@ function Login() {
           name: current_user,
           userType: user_type,
           isLogged: true,
+          id: id,
         });
 
         navigate("/admin/dashboard");

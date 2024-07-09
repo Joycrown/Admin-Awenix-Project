@@ -20,8 +20,8 @@ function Header() {
             size="2.5rem"
           />
           <div className="flex flex-col">
-            {user.name}
-            <span className="text-xs">admin</span>
+            {user.id}
+            <span className="text-xs capitalize">{user.userType}</span>
           </div>
         </div>
       </nav>

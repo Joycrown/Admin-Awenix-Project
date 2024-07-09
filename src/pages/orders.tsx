@@ -12,19 +12,29 @@ import { useAuthContext } from "../utils/authContext";
 
 function Orders() {
   const { user } = useAuthContext();
+  const [loading, setLoading] = useState(false);
   const [orders, setOrders] = useState<orderProps[]>([]);
   const [filter, setFilter] = useState({
-    month: "",
-    year: "",
+    month: `${new Date().getMonth() + 1}`,
+    year: `${new Date().getFullYear()}`,
     status: "",
   });
 
   useEffect(() => {
     const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
+    setLoading(true);
+
+    console.log(
+      `${endpoint}/orders/by-month?month=${parseInt(
+        filter.month
+      )}&year=${parseInt(filter.year)}`
+    );
 
     axios
       .get(
-        `${endpoint}/orders/by-month?month=${filter.month}&year=${filter.year}`,
+        `${endpoint}/orders/by-month?month=${parseInt(
+          filter.month
+        )}&year=${parseInt(filter.year)}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -38,13 +48,17 @@ function Orders() {
           (order: orderProps) => order.status === "ordered"
         );
         setOrders(pendingRequest);
+
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err.response);
 
-        if (err.response.status == 400) {
+        if (err.response.status == 404) {
           toast.error(err?.response?.data?.detail);
         }
+
+        setLoading(false);
       });
   }, [user, filter.month, filter.year]);
 
@@ -103,7 +117,7 @@ function Orders() {
               { length: 2024 - new Date().getFullYear() + 1 },
               (_, index) => `${2024 + index}`
             ).map((year) => (
-              <option key={`Sales ${year}`} value={`${year[2]} ${year[3]}`}>
+              <option key={`Sales ${year}`} value={`${year}`}>
                 {year}
               </option>
             ))}
@@ -145,6 +159,7 @@ function Orders() {
             ? order
             : order.status.toLowerCase() === filter.status.toLowerCase()
         )}
+        loading={loading}
       />
     </section>
   );

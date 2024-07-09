@@ -29,7 +29,7 @@ function Sidebar() {
     },
   ];
 
-  const { setUser } = useAuthContext();
+  const { user, setUser } = useAuthContext();
   const navigate = useNavigate();
 
   const logOut = () => {
@@ -39,6 +39,7 @@ function Sidebar() {
       name: "",
       isLogged: false,
       userType: "",
+      id: "",
     });
     navigate("/account/login");
   };
@@ -62,17 +63,19 @@ function Sidebar() {
           ))}
 
           <div className="mt-auto space-y-2">
-            <NavLink
-              to="/admin/settings"
-              className={({ isActive }) =>
-                isActive
-                  ? "px-3 py-2 flex gap-2 items-center bg-default-500 rounded relative text-white before:w-4 before:h-full before:absolute before:-left-7 before:bg-default-500 before:top-0 before:rounded capitalize"
-                  : "px-3 py-2 flex gap-2 items-center capitalize"
-              }
-            >
-              <IoSettingsOutline size="1rem" />
-              <span>Settings</span>
-            </NavLink>
+            {user.userType !== "admin" && (
+              <NavLink
+                to="/admin/settings"
+                className={({ isActive }) =>
+                  isActive
+                    ? "px-3 py-2 flex gap-2 items-center bg-default-500 rounded relative text-white before:w-4 before:h-full before:absolute before:-left-7 before:bg-default-500 before:top-0 before:rounded capitalize"
+                    : "px-3 py-2 flex gap-2 items-center capitalize"
+                }
+              >
+                <IoSettingsOutline size="1rem" />
+                <span>Admin Invite</span>
+              </NavLink>
+            )}
 
             <div
               onClick={logOut}

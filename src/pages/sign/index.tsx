@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { chicksSlide, eggsImage, signSlide } from "../../assets";
-import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
 import Login from "./login";
 import Register from "./register";
@@ -43,6 +49,7 @@ function Sign() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password-1" element={<ScreenOne />} />
           <Route path="/forgot-password-2" element={<ScreenThree />} />
+          <Route path="*" element={<Navigate to="/account/login" />} />
         </Routes>
       </div>
     </div>

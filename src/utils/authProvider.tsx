@@ -6,6 +6,7 @@ import { userProps } from "./interface";
 // Create a new context object
 export const AuthContext = createContext({
   user: {
+    id: "",
     accessToken: "",
     name: "",
     refreshToken: "",
@@ -27,6 +28,7 @@ export const AuthProvider = ({ children }: any) => {
     name: "",
     refreshToken: "",
     userType: "",
+    id: "",
     isLogged: false,
   };
 

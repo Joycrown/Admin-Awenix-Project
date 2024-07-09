@@ -1,7 +1,7 @@
 import { lazy } from "react";
 import { AuthProvider } from "./utils/authProvider";
 import ProtectedRoutes from "./layout/protectedRoutes";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 const Orders = lazy(() => import("./pages/orders"));
 const SignPage = lazy(() => import("./pages/sign"));
@@ -22,7 +22,9 @@ function App() {
             <Route path="/admin/orders" element={<Orders />}></Route>
             <Route path="/admin/pending" element={<Pending />}></Route>
             <Route path="/admin/settings" element={<Settings />}></Route>
+            <Route path="*" element={<Navigate to="/admin/dashboard" />} />
           </Route>
+          <Route path="*" element={<Navigate to="/admin/dashboard" />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
