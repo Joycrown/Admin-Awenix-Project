@@ -23,7 +23,7 @@ function Sign() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user.isLogged) navigate("/account/home");
+    if (user.isLogged) navigate("/admin");
 
     const route = pathname.split("/")[2];
 
@@ -39,7 +39,7 @@ function Sign() {
   }, [navigate, pathname, user]);
 
   return (
-    <div className="flex flex-1 sm:min-h-[85vh]">
+    <div className="flex flex-1 sm:min-h-screen">
       <div className="w-1/2 max-md:hidden">
         <img className="h-full w-full" src={images[currentImage]} alt="Sign" />
       </div>

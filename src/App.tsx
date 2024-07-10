@@ -3,8 +3,9 @@ import { AuthProvider } from "./utils/authProvider";
 import ProtectedRoutes from "./layout/protectedRoutes";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
+import SignPage from "./pages/sign";
+
 const Orders = lazy(() => import("./pages/orders"));
-const SignPage = lazy(() => import("./pages/sign"));
 const Pending = lazy(() => import("./pages/pending"));
 const Products = lazy(() => import("./pages/products"));
 const Settings = lazy(() => import("./pages/settings"));
@@ -17,6 +18,7 @@ function App() {
         <Routes>
           <Route path="/account/*" element={<SignPage />} />
           <Route path="/admin" element={<ProtectedRoutes />}>
+            <Route path="/admin/" element={<LandingPage />}></Route>
             <Route path="/admin/dashboard" element={<LandingPage />}></Route>
             <Route path="/admin/products" element={<Products />}></Route>
             <Route path="/admin/orders" element={<Orders />}></Route>

@@ -1,18 +1,33 @@
 import { MdClose } from "react-icons/md";
 import { productProps } from "../utils/interface";
+import { useState } from "react";
 
-interface productPopProps extends Omit<productProps, "quantity" | "image"> {}
+function ProductPopup({
+  product,
+  handleEdit,
+  closeFn,
+}: {
+  product: productProps;
+  handleEdit: (updatedProd: productProps) => void;
+  closeFn: () => void;
+}) {
+  const { price, name, description, image, size } = product;
+  const [edit, setEdit] = useState({
+    price,
+    name,
+    description,
+    image,
+  });
 
-function ProductPopup(props: productPopProps) {
-  const { price, name, description, size, closeFn } = props;
-
-  const updateProduct = () => {};
+  const updateProduct = () => {
+    handleEdit({ ...edit, size });
+  };
 
   return (
     <div className="fixed w-full h-screen left-0 top-0 flex items-center justify-center z-50">
       <div
         onClick={closeFn}
-        className="absolute w-full h-full bg-black bg-opacity-70 cursor-pointer"
+        className="absolute w-full h-full top-0 left-0 bg-black bg-opacity-70 cursor-pointer"
       />
       <div className="relative py-8 px-6 bg-white rounded max-w-sm w-full">
         <MdClose
@@ -27,8 +42,11 @@ function ProductPopup(props: productPopProps) {
             <input
               id="name"
               className="border outline-none p-3 rounded font-normal focus:border-default-100"
-              value={name}
+              value={edit.name ? edit.name : ""}
               placeholder="Name"
+              onChange={(event) =>
+                setEdit((e) => ({ ...e, name: event.target.value }))
+              }
               required
             />
           </div>
@@ -38,8 +56,11 @@ function ProductPopup(props: productPopProps) {
             <input
               id="description"
               className="border outline-none p-3 rounded font-normal focus:border-default-100"
-              value={description}
+              value={edit.description ? edit.description : ""}
               placeholder="Description"
+              onChange={(event) =>
+                setEdit((e) => ({ ...e, description: event.target.value }))
+              }
               required
             />
           </div>
@@ -50,19 +71,11 @@ function ProductPopup(props: productPopProps) {
               type="number"
               id="price"
               className="border outline-none p-3 rounded font-normal focus:border-default-100"
-              value={price}
+              value={edit.price ? edit.price : 0}
               placeholder="Price per unit"
-              required
-            />
-          </div>
-
-          <div className="flex flex-col gap-2 text-xs">
-            <label htmlFor="size">Size</label>
-            <input
-              id="size"
-              className="border outline-none p-3 rounded font-normal focus:border-default-100"
-              value={size}
-              placeholder="Size e.g kg, bag"
+              onChange={(event) =>
+                setEdit((e) => ({ ...e, price: parseInt(event.target.value) }))
+              }
               required
             />
           </div>

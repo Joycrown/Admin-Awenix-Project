@@ -24,12 +24,6 @@ function Orders() {
     const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
     setLoading(true);
 
-    console.log(
-      `${endpoint}/orders/by-month?month=${parseInt(
-        filter.month
-      )}&year=${parseInt(filter.year)}`
-    );
-
     axios
       .get(
         `${endpoint}/orders/by-month?month=${parseInt(

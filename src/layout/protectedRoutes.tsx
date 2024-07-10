@@ -37,6 +37,7 @@ function ProtectedRoutes() {
         refreshToken: "",
         userType: "",
         isLogged: false,
+        id: "",
       });
       navigate("/account/login");
       return;
@@ -81,6 +82,7 @@ function ProtectedRoutes() {
             refreshToken: "",
             userType: "",
             isLogged: false,
+            id: "",
           });
 
           toast.error("Please login again...");

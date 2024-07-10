@@ -92,7 +92,11 @@ function Pending() {
             </tr>
           </thead>
           <tbody className="border bg-white">
-            {loading && <p className="p-4 w-full">Loading...</p>}
+            {loading && (
+              <p className="p-4 w-full bg-default-700 bg-opacity-20">
+                Loading...
+              </p>
+            )}
             {orders.map(
               ({
                 order_id,

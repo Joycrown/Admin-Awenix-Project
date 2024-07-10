@@ -8,10 +8,12 @@ import LoadingScreen from "../../components/loadingScreen";
 
 function Register() {
   const [details, setDetails] = useState({
-    name: "",
-    email: "",
+    first_name: "",
+    last_name: "",
+    username: "",
+    phone_no: "",
     password: "",
-    phone: "",
+    token: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -20,9 +22,17 @@ function Register() {
   const handleSubmit = (e: any) => {
     e.preventDefault();
 
-    const { name, password, email, phone } = details;
+    const { first_name, last_name, username, phone_no, password, token } =
+      details;
 
-    if (name === "" || email === "" || phone === "") {
+    if (
+      first_name === "" ||
+      last_name === "" ||
+      phone_no === "" ||
+      password === "" ||
+      token !== "" ||
+      username !== ""
+    ) {
       toast.error("All input fields must be filled");
       return;
     }
@@ -36,14 +46,16 @@ function Register() {
 
     const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
     const body = {
-      name,
+      first_name,
+      last_name,
+      username,
+      phone_no,
       password,
-      email,
-      phone_no: phone,
+      token,
     };
 
     axios
-      .post(`${endpoint}/signup`, body, {
+      .put(`${endpoint}/signup`, body, {
         data: { ...body },
         headers: {
           "Content-Type": "application/json",
@@ -72,57 +84,90 @@ function Register() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col justify-center gap-4 text-black h-full w-full max-w-sm mx-auto"
+      className="flex flex-col justify-center gap-4 text-black h-full w-full max-w-md mx-auto"
     >
       {loading && <LoadingScreen />}
       <h2>Create an account</h2>
       <p>Enter your details below</p>
 
-      {/* Name */}
-      <input
-        placeholder="Name"
-        className="border-b px-2 py-3 outline-none"
-        value={details.name}
-        onChange={(e) =>
-          setDetails((prev) => ({ ...prev, name: e.target.value }))
-        }
-        required
-      />
+      <div className="flex gap-3">
+        {/* First Name */}
+        <input
+          id="first_name"
+          placeholder="First Name"
+          className="border-b px-2 py-3 outline-none"
+          value={details.first_name}
+          onChange={(e) =>
+            setDetails((prev) => ({ ...prev, first_name: e.target.value }))
+          }
+          required
+        />
 
-      {/* Email address */}
-      <input
-        type="email"
-        placeholder="Email address"
-        className="border-b px-2 py-3 outline-none"
-        value={details.email}
-        onChange={(e) =>
-          setDetails((prev) => ({ ...prev, email: e.target.value }))
-        }
-        required
-      />
+        {/* Last Name */}
+        <input
+          id="last_name"
+          placeholder="Last Name"
+          className="border-b px-2 py-3 outline-none"
+          value={details.last_name}
+          onChange={(e) =>
+            setDetails((prev) => ({ ...prev, last_name: e.target.value }))
+          }
+          required
+        />
+      </div>
 
-      {/* Phone number */}
-      <input
-        placeholder="Phone number"
-        className="border-b px-2 py-3 outline-none"
-        value={details.phone}
-        onChange={(e) =>
-          setDetails((prev) => ({ ...prev, phone: e.target.value }))
-        }
-        required
-      />
+      <div className="flex gap-3">
+        <input
+          id="username"
+          placeholder="Username"
+          className="border-b px-2 py-3 outline-none"
+          value={details.username}
+          onChange={(e) =>
+            setDetails((prev) => ({ ...prev, username: e.target.value }))
+          }
+          required
+        />
 
-      {/* Password */}
-      <input
-        type="password"
-        placeholder="Password"
-        className="border-b px-2 py-3 outline-none"
-        value={details.password}
-        onChange={(e) =>
-          setDetails((prev) => ({ ...prev, password: e.target.value }))
-        }
-        required
-      />
+        {/* Phone number */}
+        <input
+          id="phone_no"
+          placeholder="Phone number"
+          className="border-b px-2 py-3 outline-none"
+          value={details.phone_no}
+          onChange={(e) =>
+            setDetails((prev) => ({ ...prev, phone_no: e.target.value }))
+          }
+          required
+        />
+      </div>
+
+      <div className="flex gap-3">
+        {/* Password */}
+        <input
+          type="password"
+          id="password"
+          placeholder="Password"
+          className="border-b px-2 py-3 outline-none"
+          value={details.password}
+          onChange={(e) =>
+            setDetails((prev) => ({ ...prev, password: e.target.value }))
+          }
+          required
+        />
+
+        {/* token */}
+        <input
+          type="password"
+          id="token"
+          placeholder="Token"
+          className="border-b px-2 py-3 outline-none"
+          value={details.token}
+          onChange={(e) =>
+            setDetails((prev) => ({ ...prev, token: e.target.value }))
+          }
+          required
+        />
+      </div>
 
       <button
         type="submit"
