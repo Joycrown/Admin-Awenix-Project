@@ -34,7 +34,6 @@ function SalesDetails({ allOrders }: { allOrders: orderProps[] }) {
               month: e.target.value,
             }))
           }
-          defaultValue=""
           value={filter.month}
           className="outline-0 border py-1 px-2 ml-auto"
         >
@@ -54,7 +53,6 @@ function SalesDetails({ allOrders }: { allOrders: orderProps[] }) {
               year: e.target.value,
             }))
           }
-          defaultValue=""
           value={filter.year}
           className="outline-0 border py-1 px-2"
         >

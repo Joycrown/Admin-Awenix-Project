@@ -46,13 +46,13 @@ function Orders() {
         setLoading(false);
       })
       .catch((err) => {
-        console.log(err.response);
+        setLoading(false);
 
-        if (err.response.status == 404) {
+        if (err.response) {
           toast.error(err?.response?.data?.detail);
         }
 
-        setLoading(false);
+        console.log(err?.response);
       });
   }, [user, filter.month, filter.year]);
 
@@ -77,8 +77,7 @@ function Orders() {
                 month: e.target.value,
               }))
             }
-            defaultValue=""
-            value={filter.month}
+            value={filter.month ? filter.month : ""}
             className="outline-0 bg-transparent py-4"
           >
             <option value="" hidden>
@@ -100,8 +99,7 @@ function Orders() {
                 year: e.target.value,
               }))
             }
-            defaultValue=""
-            value={filter.year}
+            value={filter.year ? filter.year : ""}
             className="outline-0 bg-transparent py-4"
           >
             <option value="" hidden>
@@ -126,8 +124,7 @@ function Orders() {
                 status: e.target.value,
               }))
             }
-            defaultValue=""
-            value={filter.status}
+            value={filter.status ? filter.status : ""}
             className="outline-0 bg-transparent py-4"
           >
             <option value="" hidden>

@@ -7,6 +7,7 @@ import OrderList from "./orderList";
 
 function DealDetails({ allOrders }: { allOrders: orderProps[] }) {
   const { user } = useAuthContext();
+  const [loading, setLoading] = useState(false);
   const [orders, setOrders] = useState<orderProps[]>(allOrders);
   const [filter, setFilter] = useState({
     month: `${new Date().getMonth() + 1}`,
@@ -14,6 +15,7 @@ function DealDetails({ allOrders }: { allOrders: orderProps[] }) {
   });
 
   useEffect(() => {
+    setLoading(true);
     const filteredOrders = allOrders.filter((order) => {
       const date = new Date(order.created_at);
       const month = date.getMonth() + 1;
@@ -22,6 +24,7 @@ function DealDetails({ allOrders }: { allOrders: orderProps[] }) {
     });
 
     setOrders(filteredOrders.slice(0, 19));
+    setLoading(false);
   }, [user, filter.month, filter.year, allOrders]);
 
   return (
@@ -35,7 +38,6 @@ function DealDetails({ allOrders }: { allOrders: orderProps[] }) {
               month: e.target.value,
             }))
           }
-          defaultValue=""
           value={filter.month}
           className="outline-0 border py-1 px-2 ml-auto"
         >
@@ -55,7 +57,6 @@ function DealDetails({ allOrders }: { allOrders: orderProps[] }) {
               year: e.target.value,
             }))
           }
-          defaultValue=""
           value={filter.year}
           className="outline-0 border py-1 px-2"
         >
@@ -72,7 +73,7 @@ function DealDetails({ allOrders }: { allOrders: orderProps[] }) {
           ))}
         </select>
       </div>
-      <OrderList orders={orders} />
+      <OrderList orders={orders} loading={loading} />
     </div>
   );
 }
