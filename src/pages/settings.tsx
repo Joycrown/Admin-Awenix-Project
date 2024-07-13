@@ -8,7 +8,7 @@ import LoadingScreen from "../components/loadingScreen";
 function Settings() {
   const { user } = useAuthContext();
   const [loading, setLoading] = useState(false);
-  const [formInputs, setFormInputs] = useState({ mail: "", userType: "" });
+  const [formInputs, setFormInputs] = useState({ mail: "", userType: "admin" });
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -16,7 +16,7 @@ function Settings() {
     const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
 
     if (formInputs.mail === "" || formInputs.userType === "") {
-      toast.info("Fill all inputs...");
+      toast.error("Fill all inputs...");
       return;
     }
 
@@ -41,7 +41,7 @@ function Settings() {
       .catch((err) => {
         console.log(err.response);
 
-        if (err.response.status == 400) {
+        if (err.response) {
           toast.error(err?.response?.data?.detail.replaceAll(/0-9./g, ""));
         } else {
           toast.error("Error encountered... Try again later");
@@ -70,17 +70,19 @@ function Settings() {
             placeholder="Email address of the admin you want to invite"
             className="bg-transparent border border-default-200 w-full outline-none p-3 rounded font-normal focus:border-default-300"
           />
-          <select
-            defaultValue="admin"
-            onChange={(e) =>
-              setFormInputs((prev) => ({ ...prev, userType: e.target.value }))
-            }
-            value={formInputs.userType}
-            className="outline-0 border px-4 py-3"
-          >
-            <option value="admin">Admin</option>
-            <option value="super user">Super User</option>
-          </select>
+          <div className="pr-4 bg-white">
+            <select
+              defaultValue="admin"
+              onChange={(e) =>
+                setFormInputs((prev) => ({ ...prev, userType: e.target.value }))
+              }
+              value={formInputs.userType}
+              className="outline-0 border-0 px-4 py-3"
+            >
+              <option value="admin">Admin</option>
+              <option value="super user">Super User</option>
+            </select>
+          </div>
         </div>
 
         <button className="bg-default-500 text-white py-3 px-4 cursor-pointer rounded">

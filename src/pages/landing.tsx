@@ -107,7 +107,7 @@ function LandingPage() {
         />
       </div>
 
-      <SalesDetails allOrders={orders} />
+      <SalesDetails />
       <DealDetails allOrders={orders} />
     </section>
   );

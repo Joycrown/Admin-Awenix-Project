@@ -62,7 +62,7 @@ function Pending() {
       .catch((err) => {
         console.log(err.response);
 
-        if (err.response.status == 404) {
+        if (err.response) {
           toast.error(err?.response?.data?.detail);
         }
 
@@ -94,9 +94,7 @@ function Pending() {
           <tbody className="border bg-white">
             {loading && (
               <tr>
-                <td className="p-4 w-full bg-default-700 bg-opacity-20">
-                  Loading...
-                </td>
+                <td className="p-4 bg-default-700 bg-opacity-20">Loading...</td>
               </tr>
             )}
             {orders.map(

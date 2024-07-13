@@ -25,9 +25,7 @@ function OrderList({
           <tbody className="border bg-white">
             {loading && (
               <tr>
-                <td className="p-4 w-full bg-default-700 bg-opacity-20">
-                  Loading...
-                </td>
+                <td className="p-4 bg-default-700 bg-opacity-20">Loading...</td>
               </tr>
             )}
             {orders.map(

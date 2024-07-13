@@ -1,27 +1,105 @@
+import axios from "axios";
+import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 
-import { orderProps } from "../utils/interface";
-import { useAuthContext } from "../utils/authContext";
-import { months } from "../utils/data";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-function SalesDetails({ allOrders }: { allOrders: orderProps[] }) {
+import { months } from "../utils/data";
+import { useAuthContext } from "../utils/authContext";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+interface dataSet {
+  data: number[] | string[];
+  borderColor: string;
+}
+
+interface lineData {
+  labels: string[];
+  datasets: dataSet[];
+}
+
+function SalesDetails() {
   const { user } = useAuthContext();
-  const [orders, setOrders] = useState<orderProps[]>(allOrders);
+  const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
+  const options = {
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+  };
+
+  const [orders, setOrders] = useState<lineData>({
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        borderColor: "",
+      },
+    ],
+  });
   const [filter, setFilter] = useState({
     month: `${new Date().getMonth() + 1}`,
     year: `${new Date().getFullYear()}`,
   });
 
   useEffect(() => {
-    const filteredOrders = allOrders.filter((order) => {
-      const date = new Date(order.created_at);
-      const month = date.getMonth() + 1;
-      const year = date.getFullYear();
-      return month === parseInt(filter.month) && year === parseInt(filter.year);
-    });
+    axios
+      .get(
+        `${endpoint}/orders-range/sales-distribution?month=${parseInt(
+          filter.month
+        )}&year=${parseInt(filter.year)}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+        }
+      )
+      .then(
+        ({
+          data,
+        }: {
+          data: { price_ranges: string[]; user_percentages: number[] };
+        }) => {
+          setOrders({
+            labels: [...data.price_ranges],
+            datasets: [
+              {
+                data: [...data.user_percentages],
+                borderColor: "rgba(0, 146, 223, 1)",
+              },
+            ],
+          });
+        }
+      )
+      .catch((err) => {
+        console.log(err.response);
 
-    setOrders(filteredOrders);
-  }, [user, filter.month, filter.year, allOrders]);
+        if (err.response) {
+          toast.error(err?.response?.data?.detail);
+        }
+      });
+  }, [user, filter.month, filter.year, endpoint]);
 
   return (
     <div className="bg-white rounded-xl px-4 py-4 space-y-3">
@@ -69,6 +147,9 @@ function SalesDetails({ allOrders }: { allOrders: orderProps[] }) {
           ))}
         </select>
       </div>
+
+      {/* <div>{orders.map((order) => order.customer)}</div> */}
+      <Line options={options} data={orders} />
     </div>
   );
 }
