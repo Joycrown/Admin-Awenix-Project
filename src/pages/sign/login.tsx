@@ -49,8 +49,6 @@ function Login() {
         const { access_token, refresh_token, current_user, user_type, id } =
           res.data;
 
-        console.log(res.data);
-
         setUser({
           accessToken: access_token,
           refreshToken: refresh_token,
@@ -84,7 +82,7 @@ function Login() {
       className="flex flex-col justify-center gap-4 text-black h-full w-full max-w-sm mx-auto"
     >
       {loading && <LoadingScreen />}
-      <h2>Log in to Awenix</h2>
+      <h2>Log in to Awenix Admin</h2>
       <p>Enter your details below</p>
 
       {/* Email address or Phone number */}

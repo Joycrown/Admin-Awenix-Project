@@ -47,7 +47,7 @@ function ProductCard({ product, updateList, deleteProduct }: productCardProps) {
     setLoading(true);
 
     axios
-      .delete(`${endpoint}/products/${product.name}`, {
+      .put(`${endpoint}/products/${product.name}/remove`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${user.accessToken}`,

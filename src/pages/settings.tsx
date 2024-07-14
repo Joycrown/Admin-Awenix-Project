@@ -8,7 +8,7 @@ import LoadingScreen from "../components/loadingScreen";
 function Settings() {
   const { user } = useAuthContext();
   const [loading, setLoading] = useState(false);
-  const [formInputs, setFormInputs] = useState({ mail: "", userType: "admin" });
+  const [formInputs, setFormInputs] = useState({ mail: "", userType: "staff" });
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -72,14 +72,14 @@ function Settings() {
           />
           <div className="pr-4 bg-white">
             <select
-              defaultValue="admin"
+              defaultValue="staff"
               onChange={(e) =>
                 setFormInputs((prev) => ({ ...prev, userType: e.target.value }))
               }
               value={formInputs.userType}
               className="outline-0 border-0 px-4 py-3"
             >
-              <option value="admin">Admin</option>
+              <option value="staff">Staff</option>
               <option value="super user">Super User</option>
             </select>
           </div>

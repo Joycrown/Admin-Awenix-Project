@@ -1,6 +1,6 @@
-import { MdClose } from "react-icons/md";
+import { MdClose, MdOutlineCloudUpload } from "react-icons/md";
 import { productProps } from "../utils/interface";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import axios from "axios";
 import { useAuthContext } from "../utils/authContext";
 import { toast } from "react-toastify";
@@ -25,6 +25,8 @@ function AddProduct({
     size: "kg",
   });
 
+  const imageRef = useRef<HTMLInputElement>(null);
+
   const addProduct = () => {
     const { name, price, description, size } = product;
     if (name === "") {
@@ -39,7 +41,7 @@ function AddProduct({
     }
 
     axios
-      .delete(
+      .post(
         `${endpoint}/products/create_product?product_name=${name}&product_desc=${description}&size=${size}&amount=${price}`,
         {
           headers: {
@@ -75,6 +77,20 @@ function AddProduct({
         />
 
         <form className="space-y-3 w-full">
+          <div className="group/image rounded-full overflow-hidden w-20 h-20 mx-auto relative flex items-center justify-center cursor-pointer bg-default-700">
+            <img src={product.image} alt={product.name} />
+            <div
+              className="bg-black bg-opacity-80 absolute w-full h-full top-full group-hover/image:top-1/2 duration-300 flex justify-center text-white"
+              onClick={() => imageRef.current && imageRef.current.click()}
+            >
+              <input
+                className="absolute -z-50 -left-96"
+                type="file"
+                ref={imageRef}
+              />
+              <MdOutlineCloudUpload size="1.2rem" className="mt-2" />
+            </div>
+          </div>
           <div className="flex flex-col gap-2 text-xs">
             <label htmlFor="name">Product Name</label>
             <input
