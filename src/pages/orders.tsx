@@ -38,10 +38,7 @@ function Orders() {
       )
       .then((res) => {
         const responseData = res.data;
-        const pendingRequest = responseData.filter(
-          (order: orderProps) => order.status === "ordered"
-        );
-        setOrders(pendingRequest);
+        setOrders(responseData);
 
         setLoading(false);
       })

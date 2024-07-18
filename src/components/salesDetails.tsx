@@ -67,7 +67,7 @@ function SalesDetails() {
       .get(
         `${endpoint}/orders-range/sales-distribution?month=${parseInt(
           filter.month
-        )}&year=${parseInt(filter.year)}`,
+        )}&year=${parseInt(filter.year)}&num_ranges=5`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -148,8 +148,10 @@ function SalesDetails() {
         </select>
       </div>
 
-      {/* <div>{orders.map((order) => order.customer)}</div> */}
       <Line options={options} data={orders} />
+      {/* <div>{orders.map((order) => order.customer)}</div>
+      <div className="w-full max-w-[calc(100vw-8rem)]">
+      </div> */}
     </div>
   );
 }

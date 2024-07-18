@@ -11,9 +11,14 @@ export interface productProps {
   name: string;
   description: string;
   price: number;
-  image: string;
+  product_image: string;
   size: string;
+  last_edited_by: string;
+  updated_at: string;
 }
+
+
+export interface productPopProps extends Omit<productProps, "last_edited_by" | "updated_at"> {}
 
 export interface orderProduct {
   product_id: number;

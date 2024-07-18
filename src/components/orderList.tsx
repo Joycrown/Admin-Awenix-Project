@@ -53,7 +53,13 @@ function OrderList({
                     ₦ {total_price.toLocaleString("en-gb")}
                   </td>
                   <td className="td-class p-4">
-                    <span className="rounded-md bg-orange-600/50 px-4 py-3 text-xs font-semibold uppercase text-orange-100 antialiased block mx-auto w-fit">
+                    <span
+                      className={`rounded-md ${
+                        status.toLowerCase() === "confirmed"
+                          ? "bg-green-600/50 text-green-100"
+                          : "bg-orange-600/50 text-orange-100"
+                      } px-4 py-3 text-xs font-semibold uppercase antialiased block mx-auto w-fit`}
+                    >
                       {status}
                     </span>
                   </td>

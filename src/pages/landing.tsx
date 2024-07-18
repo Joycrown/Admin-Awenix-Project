@@ -53,9 +53,7 @@ function LandingPage() {
         setUsers(responseData.length);
       })
       .catch((err) => {
-        console.log(err.response);
-
-        if (err.response.status == 400) {
+        if (err.response) {
           toast.error(err?.response?.data?.detail);
         }
       });

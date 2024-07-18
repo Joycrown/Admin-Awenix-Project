@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { MdClose, MdOutlineCloudUpload } from "react-icons/md";
-import { productProps } from "../utils/interface";
+import { productPopProps, productProps } from "../utils/interface";
 import { useRef, useState } from "react";
 import axios from "axios";
 import { useAuthContext } from "../utils/authContext";
@@ -16,50 +17,65 @@ function AddProduct({
   const { user } = useAuthContext();
   const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
   const [loading, setLoading] = useState(false);
+  const [displayImage, setDisplayImage] = useState("");
 
-  const [product, setProduct] = useState<productProps>({
+  const [product, setProduct] = useState<productPopProps>({
     price: 0,
     name: "",
     description: "",
-    image: "",
+    product_image: "",
     size: "kg",
   });
 
   const imageRef = useRef<HTMLInputElement>(null);
 
   const addProduct = () => {
-    const { name, price, description, size } = product;
+    const { name, price, description, size, product_image } = product;
     if (name === "") {
       toast.error("Name must be filled");
       return;
     } else if (description.length <= 20) {
       toast.error("Description must be more than 20 words");
       return;
-    } else if (price < 200) {
-      toast.error("Price must be more than 200");
+    } else if (price < 1) {
+      toast.error("Price must be more than 1");
       return;
     }
 
+    setLoading(true);
+
     axios
       .post(
-        `${endpoint}/products/create_product?product_name=${name}&product_desc=${description}&size=${size}&amount=${price}`,
+        `${endpoint}/create_product?product_name=${name}&product_desc=${description}&size=${size}&amount=${price}`,
+        { file: product_image },
         {
+          data: { file: product_image },
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${user.accessToken}`,
           },
         }
       )
-      .then(() => {
+      .then((res) => {
         setLoading(false);
         toast.success(`${product.name} successfully added`);
-        updateList(product);
+        updateList(res.data);
       })
       .catch((err) => {
         setLoading(false);
         toast.error("Cannot add product right now... Try again later");
         console.error(err);
       });
+  };
+
+  const setImage = (event: any) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      const url = window.URL.createObjectURL(file);
+      setDisplayImage(url);
+
+      setProduct((prev) => ({ ...prev, product_image: file }));
+    }
   };
 
   return (
@@ -78,15 +94,17 @@ function AddProduct({
 
         <form className="space-y-3 w-full">
           <div className="group/image rounded-full overflow-hidden w-20 h-20 mx-auto relative flex items-center justify-center cursor-pointer bg-default-700">
-            <img src={product.image} alt={product.name} />
+            <img src={displayImage} alt={product.name} />
             <div
               className="bg-black bg-opacity-80 absolute w-full h-full top-full group-hover/image:top-1/2 duration-300 flex justify-center text-white"
               onClick={() => imageRef.current && imageRef.current.click()}
             >
               <input
-                className="absolute -z-50 -left-96"
                 type="file"
                 ref={imageRef}
+                accept="image/*"
+                className="absolute -z-50 -left-96"
+                onChange={(event) => setImage(event)}
               />
               <MdOutlineCloudUpload size="1.2rem" className="mt-2" />
             </div>

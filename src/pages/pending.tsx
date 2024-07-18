@@ -3,15 +3,19 @@ import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 
 import { months } from "../utils/data";
-import { orderProps } from "../utils/interface";
+import { orderProduct, orderProps } from "../utils/interface";
 import { useAuthContext } from "../utils/authContext";
 import LoadingScreen from "../components/loadingScreen";
+import OrderPopup from "../components/orderPopup";
 
 function Pending() {
   const { user } = useAuthContext();
   const [loading, setLoading] = useState(false);
-  const [actionLoader, setActionLoader] = useState(false);
+  const [orderID, setOrderID] = useState("");
   const [orders, setOrders] = useState<orderProps[]>([]);
+  const [actionLoader, setActionLoader] = useState(false);
+  const [orderItems, setOrderItems] = useState<orderProduct[]>([]);
+
   const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
 
   useEffect(() => {
@@ -34,9 +38,7 @@ function Pending() {
         setLoading(false);
       })
       .catch((err) => {
-        console.log(err.response);
-
-        if (err.response.status == 404) {
+        if (err.response) {
           toast.error(err?.response?.data?.detail);
         }
 
@@ -60,8 +62,6 @@ function Pending() {
         setActionLoader(false);
       })
       .catch((err) => {
-        console.log(err.response);
-
         if (err.response) {
           toast.error(err?.response?.data?.detail);
         }
@@ -77,7 +77,7 @@ function Pending() {
         <p>Orders waiting to be confirmed.</p>
       </div>
 
-      {actionLoader && <LoadingScreen />}
+      <div>{actionLoader && <LoadingScreen />}</div>
 
       <div className="flex items-center lg:justify-center w-full max-lg:overflow-x-auto">
         <table className="text-sm w-full max-xs:min-w-[500px] max-lg:min-w-[700px]">
@@ -103,6 +103,7 @@ function Pending() {
                 created_at,
                 total_price,
                 customer_details,
+                order_items,
               }: orderProps) => (
                 <tr key={order_id} className="border-t">
                   <td className="td-class p-4 suspended-text">{order_id}</td>
@@ -121,11 +122,14 @@ function Pending() {
                     ₦ {total_price.toLocaleString("en-gb")}
                   </td>
                   <td
-                    onClick={() => handleConfirm(order_id)}
+                    onClick={() => {
+                      setOrderItems(order_items);
+                      setOrderID(order_id);
+                    }}
                     className="td-class p-4"
                   >
                     <span className="rounded-md bg-default-500/50 px-4 py-3 text-xs font-semibold uppercase text-white antialiased block mx-auto w-fit cursor-pointer">
-                      Confirm
+                      View
                     </span>
                   </td>
                 </tr>
@@ -133,6 +137,15 @@ function Pending() {
             )}
           </tbody>
         </table>
+      </div>
+      <div>
+        {orderItems.length >= 1 && (
+          <OrderPopup
+            items={orderItems}
+            closeFn={() => setOrderItems([])}
+            handleConfirm={() => handleConfirm(orderID)}
+          />
+        )}
       </div>
     </section>
   );

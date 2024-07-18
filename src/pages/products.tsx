@@ -67,9 +67,10 @@ function Product() {
           </div>
           {newlyAdded && (
             <AddProduct
-              updateList={(newProd) =>
-                setProducts((prods) => ({ ...prods, newProd }))
-              }
+              updateList={(newProd) => {
+                setNewlyAdded(false);
+                setProducts((prods) => ({ ...prods, newProd }));
+              }}
               closeFn={() => setNewlyAdded(false)}
             />
           )}

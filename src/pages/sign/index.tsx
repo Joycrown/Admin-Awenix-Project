@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { chicksSlide, eggsImage, signSlide } from "../../assets";
+import { chicksSlide, eggsImage, logo, signSlide } from "../../assets";
 import {
   Navigate,
   Route,
@@ -44,6 +44,9 @@ function Sign() {
         <img className="h-full w-full" src={images[currentImage]} alt="Sign" />
       </div>
       <div className="flex-1 px-8 lg:px-12 pt-8 pb-16">
+        <div className="max-w-md mx-auto">
+          <img src={logo} alt="Awenix" className="w-32 mx-0" />
+        </div>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

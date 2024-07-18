@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { MdClose, MdOutlineCloudUpload } from "react-icons/md";
-import { productProps } from "../utils/interface";
+import { productPopProps, productProps } from "../utils/interface";
 import { useRef, useState } from "react";
 
 function ProductPopup({
@@ -8,21 +9,32 @@ function ProductPopup({
   closeFn,
 }: {
   product: productProps;
-  handleEdit: (updatedProd: productProps) => void;
+  handleEdit: (updatedProd: productPopProps) => void;
   closeFn: () => void;
 }) {
-  const { price, name, description, image, size } = product;
+  const { price, name, description, product_image, size } = product;
   const [edit, setEdit] = useState({
     price,
     name,
     description,
-    image,
+    image: product_image,
   });
+  const [displayImage, setDisplayImage] = useState(product_image);
 
   const imageRef = useRef<HTMLInputElement>(null);
 
   const updateProduct = () => {
-    handleEdit({ ...edit, size });
+    handleEdit({ ...edit, product_image: edit.image, size });
+  };
+
+  const setImage = (event: any) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      const url = window.URL.createObjectURL(file);
+      setDisplayImage(url);
+
+      setEdit((prev) => ({ ...prev, image: file }));
+    }
   };
 
   return (
@@ -40,15 +52,17 @@ function ProductPopup({
 
         <form className="space-y-3 w-full">
           <div className="group/image rounded-full overflow-hidden w-20 h-20 mx-auto relative flex items-center justify-center cursor-pointer bg-default-700">
-            <img src={image} alt={product.name} />
+            <img src={displayImage} alt={product.name} />
             <div
               className="bg-black bg-opacity-80 absolute w-full h-full top-full group-hover/image:top-1/2 duration-300 flex justify-center text-white"
               onClick={() => imageRef.current && imageRef.current.click()}
             >
               <input
-                className="absolute -z-50 -left-96"
                 type="file"
                 ref={imageRef}
+                accept="image/*"
+                className="absolute -z-50 -left-96"
+                onChange={(event) => setImage(event)}
               />
               <MdOutlineCloudUpload size="1.2rem" className="mt-2" />
             </div>
