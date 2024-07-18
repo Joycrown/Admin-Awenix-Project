@@ -55,7 +55,7 @@ function Register() {
     };
 
     axios
-      .put(`${endpoint}/signup`, body, {
+      .put(`${endpoint}/admin/signup`, body, {
         data: { ...body },
         headers: {
           "Content-Type": "application/json",
