@@ -87,7 +87,7 @@ function Register() {
       className="flex flex-col justify-center gap-4 text-black h-full w-full max-w-md mx-auto"
     >
       {loading && <LoadingScreen />}
-      <h2>Complete your admin account</h2>
+      <h2>Admin Signup</h2>
       <p>Enter your details below</p>
 
       <div className="flex gap-3">

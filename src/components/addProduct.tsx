@@ -34,8 +34,8 @@ function AddProduct({
     if (name === "") {
       toast.error("Name must be filled");
       return;
-    } else if (description.length <= 20) {
-      toast.error("Description must be more than 20 words");
+    } else if (description.length <= 10) {
+      toast.error("Description must be more than 10 words");
       return;
     } else if (price < 1) {
       toast.error("Price must be more than 1");

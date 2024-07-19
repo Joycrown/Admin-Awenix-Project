@@ -82,7 +82,7 @@ function Login() {
       className="flex flex-col justify-center gap-4 text-black h-full w-full max-w-sm mx-auto"
     >
       {loading && <LoadingScreen />}
-      <h2>Log in to Awenix Admin</h2>
+      <h2>Admin Sign in</h2>
       <p>Enter your details below</p>
 
       {/* Email address or Phone number */}
