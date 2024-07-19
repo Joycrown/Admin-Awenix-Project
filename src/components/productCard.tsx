@@ -104,21 +104,23 @@ function ProductCard({ product, updateList, deleteProduct }: productCardProps) {
           </div>
         </div>
 
-        <div className="mt-4 text-sm space-y-1">
-          <div className="flex gap-2 items-center">
-            <span>Last edited: </span>
-            <span className="capitalize">{product.last_edited_by}</span>
-          </div>
+        {user.userType !== "staff" && (
+          <div className="mt-4 text-sm space-y-1">
+            <div className="flex gap-2 items-center">
+              <span>Last edited: </span>
+              <span className="capitalize">{product.last_edited_by}</span>
+            </div>
 
-          <div className="flex gap-2 items-center">
-            <span>Date: </span>
-            <span className="capitalize">
-              {new Date(product.updated_at).getUTCDate()}{" "}
-              {months[new Date(product.updated_at).getMonth()]}{" "}
-              {new Date(product.updated_at).getFullYear()}
-            </span>
+            <div className="flex gap-2 items-center">
+              <span>Date: </span>
+              <span className="capitalize">
+                {new Date(product.updated_at).getUTCDate()}{" "}
+                {months[new Date(product.updated_at).getMonth()]}{" "}
+                {new Date(product.updated_at).getFullYear()}
+              </span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {hidden && (
