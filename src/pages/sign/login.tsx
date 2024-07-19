@@ -2,7 +2,6 @@
 import axios from "axios";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { googleIcon } from "../../assets";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../utils/authContext";
 import LoadingScreen from "../../components/loadingScreen";
@@ -72,10 +71,6 @@ function Login() {
       });
   };
 
-  const handleSignIn = () => {
-    console.log("Signing up with google");
-  };
-
   return (
     <form
       onSubmit={handleSubmit}
@@ -122,24 +117,6 @@ function Login() {
       >
         Log in
       </button>
-
-      <div
-        onClick={handleSignIn}
-        className="w-full py-3 px-4 cursor-pointer bg-transparent flex gap-4 items-center justify-center border-default-100 border rounded-md"
-      >
-        <img className="w-6 mx-0" src={googleIcon} alt="Sign up with google" />{" "}
-        Sign in with Google
-      </div>
-
-      <p className="text-center text-sm">
-        Don't have account?{" "}
-        <Link
-          className="hover:underline underline-offset-8 hover:text-default-500"
-          to="/account/register"
-        >
-          Sign up
-        </Link>
-      </p>
     </form>
   );
 }

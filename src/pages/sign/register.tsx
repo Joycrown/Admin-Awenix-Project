@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
-import { useState } from "react";
 import { toast } from "react-toastify";
-import { googleIcon } from "../../assets";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import LoadingScreen from "../../components/loadingScreen";
 
 function Register() {
@@ -13,17 +12,27 @@ function Register() {
     username: "",
     phone_no: "",
     password: "",
-    token: "",
   });
+
+  const [token, setToken] = useState("");
+
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search).get("token");
+    if (params) {
+      setToken(params);
+    } else {
+      navigate("/account/login");
+    }
+  }, [navigate]);
+
   const handleSubmit = (e: any) => {
     e.preventDefault();
 
-    const { first_name, last_name, username, phone_no, password, token } =
-      details;
+    const { first_name, last_name, username, phone_no, password } = details;
 
     if (
       first_name === "" ||
@@ -75,10 +84,6 @@ function Register() {
         }
         console.log(err);
       });
-  };
-
-  const handleSignUp = () => {
-    console.log("Signing up with google");
   };
 
   return (
@@ -154,19 +159,6 @@ function Register() {
           }
           required
         />
-
-        {/* token */}
-        <input
-          type="password"
-          id="token"
-          placeholder="Token"
-          className="border-b px-2 py-3 outline-none"
-          value={details.token}
-          onChange={(e) =>
-            setDetails((prev) => ({ ...prev, token: e.target.value }))
-          }
-          required
-        />
       </div>
 
       <button
@@ -175,24 +167,6 @@ function Register() {
       >
         Create Account
       </button>
-
-      <div
-        onClick={handleSignUp}
-        className="w-full py-3 px-4 cursor-pointer bg-transparent flex gap-4 items-center justify-center border-default-100 border rounded-md"
-      >
-        <img className="w-6 mx-0" src={googleIcon} alt="Sign up with google" />{" "}
-        Sign up with Google
-      </div>
-
-      <p className="text-center text-sm">
-        Already have account?{" "}
-        <Link
-          className="hover:underline underline-offset-8 hover:text-default-500"
-          to="/account/login"
-        >
-          Log in
-        </Link>
-      </p>
     </form>
   );
 }
