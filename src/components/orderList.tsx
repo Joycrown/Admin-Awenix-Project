@@ -45,7 +45,7 @@ function OrderList({
                     {customer_details.email}
                   </td>
                   <td className="td-class p-4 suspended-text">
-                    {new Date(created_at).getDay()}{" "}
+                    {new Date(created_at).getUTCDate()}{" "}
                     {months[new Date(created_at).getMonth()]}{" "}
                     {new Date(created_at).getFullYear()}
                   </td>
