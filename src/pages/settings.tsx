@@ -1,14 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useAuthContext } from "../utils/authContext";
 import LoadingScreen from "../components/loadingScreen";
+import { useNavigate } from "react-router-dom";
 
 function Settings() {
   const { user } = useAuthContext();
   const [loading, setLoading] = useState(false);
   const [formInputs, setFormInputs] = useState({ mail: "", userType: "staff" });
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user.userType.toLowerCase() !== "super admin") {
+      navigate("/admin/dashboard");
+    }
+  }, [user, navigate]);
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
