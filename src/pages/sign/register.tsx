@@ -39,8 +39,7 @@ function Register() {
       last_name === "" ||
       phone_no === "" ||
       password === "" ||
-      token !== "" ||
-      username !== ""
+      username === ""
     ) {
       toast.error("All input fields must be filled");
       return;
