@@ -63,7 +63,7 @@ function Sidebar() {
           ))}
 
           <div className="mt-auto space-y-2">
-            {user.userType !== "admin" && (
+            {user.userType !== "staff" && (
               <NavLink
                 to="/admin/settings"
                 className={({ isActive }) =>
