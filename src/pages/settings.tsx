@@ -80,7 +80,7 @@ function Settings() {
               className="outline-0 border-0 px-4 py-3"
             >
               <option value="staff">Staff</option>
-              <option value="super user">Super User</option>
+              <option value="super admin">Super Admin</option>
             </select>
           </div>
         </div>
