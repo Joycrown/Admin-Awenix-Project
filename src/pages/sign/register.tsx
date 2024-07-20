@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LoadingScreen from "../../components/loadingScreen";
+import PasswordInput from "../../components/passwordInput";
 
 function Register() {
   const [details, setDetails] = useState({
@@ -145,20 +146,14 @@ function Register() {
         />
       </div>
 
-      <div className="flex gap-3">
-        {/* Password */}
-        <input
-          type="password"
-          id="password"
-          placeholder="Password"
-          className="border-b px-2 py-3 outline-none"
-          value={details.password}
-          onChange={(e) =>
-            setDetails((prev) => ({ ...prev, password: e.target.value }))
-          }
-          required
-        />
-      </div>
+      <PasswordInput
+        value={details.password}
+        setValue={(value: string) =>
+          setDetails((prev) => ({ ...prev, password: value }))
+        }
+        id="password"
+        placeholder="Password"
+      />
 
       <button
         type="submit"

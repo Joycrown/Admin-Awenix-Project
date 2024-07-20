@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import LoadingScreen from "../../../components/loadingScreen";
+import PasswordInput from "../../../components/passwordInput";
 
 function ScreenThree() {
   const [token, setToken] = useState("");
@@ -56,25 +57,19 @@ function ScreenThree() {
       <h2>Forgot Password</h2>
       <p>Type in your new password</p>
 
-      {/* Password */}
-      <input
-        type="password"
-        placeholder="New Password"
-        className="border-b px-2 py-3 outline-none"
+      <PasswordInput
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
+        setValue={(value: string) => setPassword(value)}
+        id="password"
+        placeholder="New Password"
       />
 
       {/* Confirm Password */}
-      <input
-        type="password"
-        placeholder="Confirm Password"
-        className="border-b px-2 py-3 outline-none"
+      <PasswordInput
         value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-        onInput={(e) => setConfirmPassword(e.currentTarget.value)}
-        required
+        setValue={(value: string) => setConfirmPassword(value)}
+        id="confirmPassword"
+        placeholder="Confirm Password"
       />
 
       <button className="py-3 px-6 bg-default-500 text-white rounded outline-none border-none">
