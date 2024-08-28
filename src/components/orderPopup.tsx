@@ -1,13 +1,18 @@
 import { MdClose } from "react-icons/md";
 import { orderProduct } from "../utils/interface";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
 interface orderItemsProps {
   items: orderProduct[];
   closeFn: () => void;
-  handleConfirm: () => void;
+  handleConfirm: (bank: string) => void;
 }
 
 function OrderPopup({ items, closeFn, handleConfirm }: orderItemsProps) {
+  const [selectedBank, setSelectedBank] = useState("");
+  const PAYMENT_REFERENCE = ["FCMB BANK", "FIRST BANK", "STANBIC BANK"];
+
   return (
     <div className="fixed w-full h-screen left-0 top-0 flex items-center justify-center z-50">
       <div
@@ -49,10 +54,30 @@ function OrderPopup({ items, closeFn, handleConfirm }: orderItemsProps) {
           </table>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-center">
+          <div className="border pl-2 pr-4 cursor-pointer rounded text-xs w-1/2 bg-white">
+            <select
+              defaultValue=""
+              onChange={(e) => setSelectedBank(e.target.value)}
+              className="border-none outline-none w-full py-3 bg-transparent"
+            >
+              <option value="" hidden>
+                Select Payment Reference
+              </option>
+              {PAYMENT_REFERENCE.map((bank) => (
+                <option key={bank} className="capitalize" value={bank}>
+                  {bank}
+                </option>
+              ))}
+            </select>
+          </div>
           <div
-            onClick={handleConfirm}
-            className="bg-default-500 text-white py-3 px-4 cursor-pointer rounded text-xs"
+            onClick={() =>
+              selectedBank === ""
+                ? toast.error("Select a payment reference")
+                : handleConfirm(selectedBank)
+            }
+            className="bg-default-500 text-white py-4 px-4 cursor-pointer rounded text-xs"
           >
             Confirm Order
           </div>

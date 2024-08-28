@@ -46,28 +46,29 @@ function Pending() {
       });
   }, [user, endpoint]);
 
-  const handleConfirm = (id: string) => {
+  const handleConfirm = (reference: string, id: string) => {
     setActionLoader(true);
 
     axios
-      .get(`${endpoint}/admin/confirm_order/${id}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user.accessToken}`,
-        },
-      })
+      .post(
+        `${endpoint}/admin/confirm_order/${id}?payment_reference=${reference}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+        }
+      )
       .then(() => {
         toast.success(`${id} have been confirmed`);
         setOrders((prev) => prev.filter((item) => item.order_id !== id));
-        setActionLoader(false);
       })
       .catch((err) => {
-        if (err.response) {
-          toast.error(err?.response?.data?.detail);
-        }
-
-        setActionLoader(false);
-      });
+        toast.error(
+          err?.response?.data?.detail || "Error while confirming order"
+        );
+      })
+      .finally(() => setActionLoader(false));
   };
 
   return (
@@ -143,7 +144,7 @@ function Pending() {
           <OrderPopup
             items={orderItems}
             closeFn={() => setOrderItems([])}
-            handleConfirm={() => handleConfirm(orderID)}
+            handleConfirm={(bankRef) => handleConfirm(bankRef, orderID)}
           />
         )}
       </div>

@@ -19,9 +19,9 @@ function Header() {
             className="bg-default-500 text-default-800 rounded-full cursor-pointer"
             size="2.5rem"
           />
-          <div className="flex flex-col">
+          <div className="flex flex-col capitalize">
             {user.id}
-            <span className="text-xs capitalize">{user.userType}</span>
+            <span className="text-xs">{user.userType}</span>
           </div>
         </div>
       </nav>

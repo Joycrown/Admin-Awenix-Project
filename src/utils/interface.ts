@@ -18,7 +18,7 @@ export interface productProps {
 }
 
 
-export interface productPopProps extends Omit<productProps, "last_edited_by" | "updated_at"> {}
+export interface productPopProps extends Omit<productProps, "last_edited_by" | "updated_at"> { }
 
 export interface orderProduct {
   product_id: number;
@@ -46,4 +46,6 @@ export interface orderProps {
   expire_at: string;
   status: string;
   order_items: orderProduct[],
+  payment_reference?: string;
+  order_verified_by?: string;
 }
