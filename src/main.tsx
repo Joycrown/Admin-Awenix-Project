@@ -9,6 +9,6 @@ import "react-toastify/dist/ReactToastify.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.Fragment>
     <App />
-    <ToastContainer limit={1} />
+    <ToastContainer limit={2} />
   </React.Fragment>
 );

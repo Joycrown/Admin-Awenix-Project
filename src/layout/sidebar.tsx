@@ -18,14 +18,14 @@ function Sidebar() {
       icon: <PiSquareHalf size="1rem" />,
     },
     {
-      name: "Shipping",
-      route: "/admin/pending",
-      icon: <BsCashCoin size="1rem" />,
-    },
-    {
       name: "Order Lists",
       route: "/admin/orders",
       icon: <PiListDashesThin size="1rem" />,
+    },
+    {
+      name: "Pending Lists",
+      route: "/admin/pending",
+      icon: <BsCashCoin size="1rem" />,
     },
   ];
 
@@ -73,7 +73,7 @@ function Sidebar() {
                 }
               >
                 <IoSettingsOutline size="1rem" />
-                <span>Admin Invite</span>
+                <span>Manage Admin</span>
               </NavLink>
             )}
 
