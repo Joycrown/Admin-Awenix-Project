@@ -19,12 +19,17 @@ function ProductPopup({
     description,
     image: product_image,
   });
+  const [isImageInputed, setIsImageInputed] = useState(false);
   const [displayImage, setDisplayImage] = useState(product_image);
 
   const imageRef = useRef<HTMLInputElement>(null);
 
   const updateProduct = () => {
-    handleEdit({ ...edit, product_image: edit.image, size });
+    handleEdit({
+      ...edit,
+      product_image: isImageInputed ? edit.image : "",
+      size,
+    });
   };
 
   const setImage = (event: any) => {
@@ -33,7 +38,10 @@ function ProductPopup({
       const url = window.URL.createObjectURL(file);
       setDisplayImage(url);
 
+      setIsImageInputed(true);
       setEdit((prev) => ({ ...prev, image: file }));
+    } else {
+      setIsImageInputed(false);
     }
   };
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -19,11 +20,10 @@ function ProductCard({ product, updateList, deleteProduct }: productCardProps) {
   const { user } = useAuthContext();
   const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
 
-  const editProduct = (updatedProd: productPopProps) => {
+  const editProduct = async (updatedProd: productPopProps) => {
     setLoading(true);
-
-    axios
-      .patch(
+    try {
+      const res = await axios.patch(
         `${endpoint}/products/${product.name}?name=${updatedProd.name}&description=${updatedProd.description}&price=${updatedProd.price}`,
         { file: updatedProd.product_image },
         {
@@ -33,18 +33,20 @@ function ProductCard({ product, updateList, deleteProduct }: productCardProps) {
             Authorization: `Bearer ${user.accessToken}`,
           },
         }
-      )
-      .then((res) => {
-        setLoading(false);
+      );
 
-        toast.success(`${product.name} successfully updated`);
-        updateList(res.data);
-      })
-      .catch((err) => {
-        setLoading(false);
-        toast.error("Cannot edit product right now... Try again later");
-        console.error(err);
-      });
+      toast.success(`${product.name} successfully updated`);
+      updateList(res.data);
+      setHidden(false);
+    } catch (err: any) {
+      setLoading(false);
+      toast.error(
+        err.message || "Cannot edit product right now... Try again later"
+      );
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = () => {

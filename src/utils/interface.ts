@@ -7,6 +7,18 @@ export interface userProps {
   id: string;
 }
 
+export interface adminUser {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_no: string;
+  admin_status: string;
+  user_type: string;
+  created_at: Date;
+  isChanging: boolean;
+}
+
 export interface productProps {
   name: string;
   description: string;

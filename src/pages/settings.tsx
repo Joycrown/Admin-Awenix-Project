@@ -5,8 +5,7 @@ import { toast } from "react-toastify";
 import { useAuthContext } from "../utils/authContext";
 import LoadingScreen from "../components/loadingScreen";
 import { useNavigate } from "react-router-dom";
-import { months } from "../utils/data";
-import { userProps } from "../utils/interface";
+import SuperManagement from "../components/management";
 
 function Settings() {
   const { user } = useAuthContext();
@@ -34,6 +33,7 @@ function Settings() {
       email: formInputs.mail,
       user_type: formInputs.userType,
     };
+
     setLoading(true);
 
     axios
@@ -106,167 +106,3 @@ function Settings() {
 }
 
 export default Settings;
-
-interface adminUser {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_no: string;
-  admin_status: string;
-  user_type: string;
-  created_at: Date;
-  isChanging: boolean;
-}
-
-function SuperManagement({ user }: { user: userProps }) {
-  const [admins, setAdmins] = useState<adminUser[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
-
-  useEffect(() => {
-    setIsLoading(true);
-
-    axios
-      .get(`${endpoint}/admin_list`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user.accessToken}`,
-        },
-      })
-      .then((res) =>
-        setAdmins(
-          res.data.map((data: adminUser) => ({ ...data, isChanging: false }))
-        )
-      )
-      .catch((err) =>
-        toast.error(err?.response?.data?.detail || "Error loading data")
-      )
-      .finally(() => setIsLoading(false));
-  }, [user, endpoint]);
-
-  const handleAction = (id: string, accessType: string) => {
-    setAdmins((prev) =>
-      prev.map((data) =>
-        data.id === id ? { ...data, isChanging: true } : data
-      )
-    );
-
-    axios
-      .post(`${endpoint}/admin/invoke_access/${id}?access=${accessType}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user.accessToken}`,
-        },
-      })
-      .then(() =>
-        setAdmins((prev) =>
-          prev.map((data) =>
-            data.id === id
-              ? {
-                  ...data,
-                  isChanging: false,
-                  admin_status: accessType.toLowerCase(),
-                }
-              : data
-          )
-        )
-      )
-      .catch((err) => {
-        toast.error(err?.response?.data?.detail || "Error loading data");
-        setAdmins((prev) =>
-          prev.map((data) =>
-            data.id === id ? { ...data, isChanging: false } : data
-          )
-        );
-      });
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <h4 className="font-semibold text-xl">Manage Admins</h4>
-        <p>Revoke or grant access to admins</p>
-      </div>
-      <div className="flex items-center w-full max-lg:overflow-x-auto h-full">
-        {isLoading ? (
-          "Getting admins..."
-        ) : (
-          <table className="border-separate border-spacing-y-0 text-sm w-full max-xs:min-w-[500px] max-lg:min-w-[700px]">
-            <thead className="bg-default-500 text-white rounded">
-              <tr>
-                <th className="text-start p-4">Name</th>
-                <th className="text-start px-4">Email</th>
-                <th className="text-start px-4">Admin Type</th>
-                <th className="text-start px-4">Date Added</th>
-                <th className="text-start px-4">Status</th>
-                <th className="text-center">Access</th>
-              </tr>
-            </thead>
-            <tbody className="border bg-slate-100 [&>*:nth-child(even)]:bg-slate-300">
-              {admins
-                .filter((admins) => admins.id !== user.id)
-                .map(
-                  ({
-                    first_name,
-                    last_name,
-                    email,
-                    user_type,
-                    admin_status,
-                    created_at,
-                    id,
-                    isChanging,
-                  }: adminUser) => (
-                    <tr key={id}>
-                      <td
-                        title={`${first_name} ${last_name}`}
-                        className="p-4 capitalize truncate"
-                      >
-                        {first_name} {last_name}
-                      </td>
-                      <td title={email} className="p-4 truncate">
-                        {email}
-                      </td>
-                      <td className="p-4 capitalize min-w-[140px]">
-                        {user_type}
-                      </td>
-                      <td className="p-4 min-w-[140px]">
-                        {new Date(created_at).getUTCDate()}{" "}
-                        {months[new Date(created_at).getMonth()]}{" "}
-                        {new Date(created_at).getFullYear()}
-                      </td>
-                      <td className="p-4 text-center">
-                        {admin_status === "ok" ? "Active" : "Suspended"}
-                      </td>
-                      <td className="p-4 text-center">
-                        <span
-                          className={`rounded-md ${
-                            admin_status !== "ok"
-                              ? "bg-green-600/50 text-green-100"
-                              : "bg-red-600 text-white"
-                          } px-4 py-3 text-xs font-semibold uppercase antialiased block mx-auto w-fit ${
-                            isChanging
-                              ? "cursor-not-allowed bg-opacity-20"
-                              : "cursor-pointer"
-                          }`}
-                          onClick={() =>
-                            !isChanging &&
-                            handleAction(
-                              id,
-                              admin_status !== "ok" ? "Ok" : "Invoked"
-                            )
-                          }
-                        >
-                          {admin_status !== "ok" ? "Grant Access" : "Suspend"}
-                        </span>
-                      </td>
-                    </tr>
-                  )
-                )}
-            </tbody>
-          </table>
-        )}
-      </div>
-    </div>
-  );
-}

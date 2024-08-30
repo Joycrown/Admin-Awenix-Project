@@ -5,6 +5,7 @@ import { useAuthContext } from "../utils/authContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { productProps } from "../utils/interface";
 import AddProduct from "../components/addProduct";
+import { toast } from "react-toastify";
 
 function Product() {
   const { user } = useAuthContext();
@@ -19,30 +20,38 @@ function Product() {
   useEffect(() => {
     const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
     const params = new URLSearchParams(location.search).get("q");
-
     if (params) {
       setQuery(params);
     } else {
       setQuery("");
     }
 
-    setLoading(true);
+    const getProducts = async () => {
+      setLoading(true);
 
-    axios
-      .get(`${endpoint}/products?search=${params ? params : ""}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user.accessToken}`,
-        },
-      })
-      .then((res) => {
+      try {
+        const res = await axios.get(
+          `${endpoint}/products?search=${params ? params : ""}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${user.accessToken}`,
+            },
+          }
+        );
+
         setProducts(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setLoading(false);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
+        toast.error(err.message || "Error fetching products");
+
         console.error(err);
-      });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getProducts();
   }, [user, location, navigate]);
 
   useEffect(() => {
