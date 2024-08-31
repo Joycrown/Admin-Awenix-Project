@@ -158,7 +158,7 @@ function SuperManagement({ user }: { user: userProps }) {
                               Remove Access
                             </option>
                             <option className="text-black" value="Removed">
-                              Suspend Permanently
+                              Suspend
                             </option>
                           </select>
                         </span>
