@@ -41,12 +41,16 @@ function SuperManagement({ user }: { user: userProps }) {
     );
 
     axios
-      .post(`${endpoint}/admin/invoke_access/${id}?access=${grant}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user.accessToken}`,
-        },
-      })
+      .post(
+        `${endpoint}/admin/invoke_access/${id}?access=${grant}`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+        }
+      )
       .then(() =>
         setAdmins((prev) =>
           prev.map((data) =>
