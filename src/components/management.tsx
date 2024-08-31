@@ -51,7 +51,7 @@ function SuperManagement({ user }: { user: userProps }) {
           },
         }
       )
-      .then(() =>
+      .then(() => {
         setAdmins((prev) =>
           prev.map((data) =>
             data.id === id
@@ -62,8 +62,9 @@ function SuperManagement({ user }: { user: userProps }) {
                 }
               : data
           )
-        )
-      )
+        );
+        toast.success(`Admin access have been ${grant.toLowerCase()}`);
+      })
       .catch((err) => {
         toast.error(
           err?.response?.data?.detail || "Error changing admin access"
