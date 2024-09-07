@@ -14,7 +14,8 @@ function Settings() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user.userType.toLowerCase() !== "super admin") {
+   
+    if (user.userType.toLowerCase() !== "admin") {
       navigate("/admin/dashboard");
     }
   }, [user, navigate]);
@@ -90,7 +91,7 @@ function Settings() {
               className="outline-0 border-0 px-4 py-3"
             >
               <option value="staff">Staff</option>
-              <option value="super admin">Super Admin</option>
+              <option value="admin">Admin</option>
             </select>
           </div>
         </div>
@@ -100,7 +101,7 @@ function Settings() {
         </button>
       </form>
 
-      {user.userType === "super admin" && <SuperManagement user={user} />}
+      {user.userType === "admin" && <SuperManagement user={user} />}
     </section>
   );
 }

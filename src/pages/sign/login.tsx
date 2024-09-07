@@ -57,7 +57,7 @@ function Login() {
           isLogged: true,
           id: id,
         });
-
+        console.log(user_type)
         navigate("/admin/dashboard");
         setLoading(false);
       })

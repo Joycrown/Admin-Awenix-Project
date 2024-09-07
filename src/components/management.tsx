@@ -154,10 +154,10 @@ function SuperManagement({ user }: { user: userProps }) {
                             <option className="text-black" value="Ok">
                               Grant Access
                             </option>
-                            <option className="text-black" value="Invoked">
+                            <option className="text-black" value="Removed">
                               Remove Access
                             </option>
-                            <option className="text-black" value="Removed">
+                            <option className="text-black" value="Invoked">
                               Suspend
                             </option>
                           </select>

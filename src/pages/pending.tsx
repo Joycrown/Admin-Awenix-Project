@@ -52,6 +52,7 @@ function Pending() {
     axios
       .post(
         `${endpoint}/admin/confirm_order/${id}?payment_reference=${reference}`,
+        {},  // This should be the request body (empty in this case)
         {
           headers: {
             "Content-Type": "application/json",
@@ -60,7 +61,7 @@ function Pending() {
         }
       )
       .then(() => {
-        toast.success(`${id} have been confirmed`);
+        toast.success(`${id} has been confirmed`);
         setOrders((prev) => prev.filter((item) => item.order_id !== id));
       })
       .catch((err) => {
@@ -69,7 +70,8 @@ function Pending() {
         );
       })
       .finally(() => setActionLoader(false));
-  };
+};
+
 
   return (
     <section className="py-2 space-y-4">

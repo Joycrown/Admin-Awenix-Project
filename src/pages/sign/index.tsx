@@ -24,6 +24,7 @@ function Sign() {
 
   useEffect(() => {
     if (user.isLogged) navigate("/admin");
+     console.log(user)
 
     const route = pathname.split("/")[2];
 
