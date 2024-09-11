@@ -5,7 +5,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { PiSquareHalf, PiListDashesThin } from "react-icons/pi";
 import { IoSpeedometerOutline, IoSettingsOutline } from "react-icons/io5";
 
-function Sidebar() {
+function Sidebar({ mobile }: { mobile: boolean }) {
   const navLinks = [
     {
       name: "Dashboard",
@@ -45,8 +45,16 @@ function Sidebar() {
   };
 
   return (
-    <nav className="max-sm:hidden min-w-[200px] min-h-[86.5vh]">
-      <nav className="fixed min-w-[200px] h-full p-4 text-sm top-0">
+    <nav
+      className={`${
+        mobile ? "w-full" : "max-sm:hidden"
+      } min-w-[200px] min-h-[86.5vh]`}
+    >
+      <nav
+        className={`${
+          mobile ? "w-full" : ""
+        } fixed min-w-[200px] h-full p-4 text-sm top-0`}
+      >
         <nav className="flex flex-col gap-2 h-full pt-[77px] pb-4">
           {navLinks.map((link) => (
             <NavLink

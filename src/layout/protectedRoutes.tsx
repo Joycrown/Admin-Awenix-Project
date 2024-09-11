@@ -94,7 +94,7 @@ function ProtectedRoutes() {
     <>
       <Header />
       <main className="flex items-stretch">
-        <Sidebar />
+        <Sidebar mobile={false} />
         <section
           style={{ maxHeight: "calc(100vh - 77px)" }}
           className="max-sm:!min-h-screen max-sm:!max-h-full flex-1 bg-default-700 bg-opacity-20 p-4 md:px-6 sm:overflow-y-auto"
