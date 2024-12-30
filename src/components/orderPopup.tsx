@@ -13,6 +13,13 @@ function OrderPopup({ items, closeFn, handleConfirm }: orderItemsProps) {
   const [selectedBank, setSelectedBank] = useState("");
   const PAYMENT_REFERENCE = ["FCMB BANK", "FIRST BANK", "STANBIC BANK"];
 
+  // Calculate total price of all items
+  const totalOrderPrice = items.reduce((sum, item) => sum + item.total_price, 0);
+  const totalMiscellaneousAmount = items.reduce((_sum, item) =>  item.miscellaneous, 0);
+  // Calculate miscellaneous amount (10% of total)
+  const miscellaneousPercentage = 10;
+  const miscellaneousQuantity = totalMiscellaneousAmount/miscellaneousPercentage;
+
   return (
     <div className="fixed w-full h-screen left-0 top-0 flex items-center justify-center z-50">
       <div
@@ -45,11 +52,27 @@ function OrderPopup({ items, closeFn, handleConfirm }: orderItemsProps) {
                     <td className="p-4 text-center">₦ {product.price}</td>
                     <td className="p-4 text-center">{quantity}</td>
                     <td className="p-4 text-center">
-                      ₦ {total_price.toLocaleString("en-Gb")}
+                      ₦ {total_price.toLocaleString("en-GB")}
                     </td>
                   </tr>
                 )
               )}
+              {/* Miscellaneous Row */}
+              <tr className="font-medium">
+                <td className="p-4 capitalize">Miscellaneous</td>
+                <td className="p-4 text-center">₦ {miscellaneousPercentage}</td>
+                <td className="p-4 text-center">{miscellaneousQuantity}</td>
+                <td className="p-4 text-center">
+                  ₦ {totalMiscellaneousAmount.toLocaleString("en-GB")}
+                </td>
+              </tr>
+              {/* Grand Total Row */}
+              <tr className="font-bold bg-default-500 text-white">
+                <td className="p-4" colSpan={3}>Grand Total</td>
+                <td className="p-4 text-center">
+                  ₦ {(totalOrderPrice + totalMiscellaneousAmount).toLocaleString("en-GB")}
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

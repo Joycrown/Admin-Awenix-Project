@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { toast } from "react-toastify";
 import { FiBox } from "react-icons/fi";
@@ -16,47 +17,62 @@ function LandingPage() {
   const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
 
   const [orders, setOrders] = useState<orderProps[]>([]);
-
   const [users, setUsers] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const getOrders = async () => {
-    axios
-      .get(`${endpoint}/orders`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user.accessToken}`,
-        },
-      })
-      .then((res) => {
-        const responseData = res.data;
-        setOrders(responseData);
-      })
-      .catch((err) => {
-        console.log(err.response);
+  const getOrders = async (page: number = 1) => {
+    setIsLoading(true);
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-based
 
-        if (err.response.status == 400) {
-          toast.error(err?.response?.data?.detail);
+    try {
+      const response = await axios.get(
+        `${endpoint}/orders/by-month?year=${currentYear}&month=${currentMonth}&page=${page}&page_size=5`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user.accessToken}`,
+          },
         }
-      });
+      );
+      
+      const responseData = response.data;
+      setOrders(responseData.items);
+      setTotalPages(responseData.total_pages);
+      setCurrentPage(responseData.current_page);
+    } catch (err: any) {
+      console.error(err.response);
+      if (err.response?.status === 400) {
+        toast.error(err?.response?.data?.detail);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getUsers = async () => {
-    axios
-      .get(`${endpoint}/all_users`, {
+    try {
+      const response = await axios.get(`${endpoint}/all_users`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${user.accessToken}`,
         },
-      })
-      .then((res) => {
-        const responseData = res.data;
-        setUsers(responseData.length);
-      })
-      .catch((err) => {
-        if (err.response) {
-          toast.error(err?.response?.data?.detail);
-        }
       });
+      setUsers(response.data.length);
+    } catch (err: any) {
+      if (err.response) {
+        toast.error(err?.response?.data?.detail);
+      }
+    }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      getOrders(newPage);
+    }
   };
 
   useEffect(() => {
@@ -107,6 +123,29 @@ function LandingPage() {
 
       <SalesDetails />
       <DealDetails allOrders={orders} />
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center gap-2 mt-4">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1 || isLoading}
+            className="px-3 py-1 bg-blue-500 text-white rounded disabled:bg-gray-300"
+          >
+            Previous
+          </button>
+          <span className="px-3 py-1">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages || isLoading}
+            className="px-3 py-1 bg-blue-500 text-white rounded disabled:bg-gray-300"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </section>
   );
 }

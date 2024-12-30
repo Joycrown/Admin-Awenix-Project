@@ -40,6 +40,7 @@ export interface orderProduct {
   };
   quantity: number;
   price_per_unit: number;
+  miscellaneous:number,
   total_price: number;
 }
 
@@ -57,6 +58,7 @@ export interface orderProps {
   created_at: string;
   expire_at: string;
   status: string;
+  user_receipt_url: string;
   order_items: orderProduct[],
   payment_reference?: string;
   order_verified_by?: string;
