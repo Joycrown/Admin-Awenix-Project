@@ -34,7 +34,7 @@ function AddProduct({
     if (name === "") {
       toast.error("Name must be filled");
       return;
-    } else if (description.length <= 10) {
+    } else if (description.length <= 5) {
       toast.error("Description must be more than 10 words");
       return;
     } else if (price < 1) {
