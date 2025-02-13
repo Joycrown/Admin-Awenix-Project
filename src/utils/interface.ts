@@ -44,6 +44,12 @@ export interface orderProduct {
   total_price: number;
 }
 
+
+export interface orderCustomItem {
+  product_name:string
+  quantity: number;
+}
+
 export interface orderProps {
   order_id: string;
   total_price: number;
@@ -59,7 +65,30 @@ export interface orderProps {
   expire_at: string;
   status: string;
   user_receipt_url: string;
+  user_bank_verification:string
+  user_payment_name: string
   order_items: orderProduct[],
+  custom_order_items: orderCustomItem[]
   payment_reference?: string;
   order_verified_by?: string;
+}
+
+
+
+export interface ServiceProps {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  created_by: string;
+  last_edited_by?: string;
+  created_at: string;
+  updated_at: string;
+  removed: boolean;
+}
+
+export interface ServiceFormData {
+  name: string;
+  description: string;
+  price: number;
 }

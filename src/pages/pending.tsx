@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 import { months } from "../utils/data";
-import { orderProduct, orderProps } from "../utils/interface";
+import { orderProduct, orderProps,orderCustomItem } from "../utils/interface";
 import { useAuthContext } from "../utils/authContext";
 import LoadingScreen from "../components/loadingScreen";
 import OrderPopup from "../components/orderPopup";
@@ -26,6 +26,7 @@ function Pending() {
   const [orderID, setOrderID] = useState("");
   const [actionLoader, setActionLoader] = useState(false);
   const [orderItems, setOrderItems] = useState<orderProduct[]>([]);
+  const [customOrderItems, setCustomOrderItems] = useState<orderCustomItem[]>([]);
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 10
@@ -54,6 +55,7 @@ function Pending() {
       })
       .then((res) => {
         setPaginatedOrders(res.data);
+        console.log(res.data)
       })
       .catch((err) => {
         if (err.response) {
@@ -121,7 +123,8 @@ function Pending() {
             <tr>
               <th className="text-start p-4">ID</th>
               <th className="text-start px-4">Name</th>
-              <th className="text-start px-4">Email</th>
+              <th className="text-start px-4">Bank Paid To</th>
+              <th className="text-start px-4">Paid by</th>
               <th className="text-start px-4">Date</th>
               <th className="text-start px-4">Total Price</th>
               <th className="text-center">Action</th>
@@ -147,6 +150,9 @@ function Pending() {
                 total_price,
                 customer_details,
                 order_items,
+                user_payment_name,
+                user_bank_verification,
+                custom_order_items,
                 user_receipt_url,
               }) => (
                 <tr key={order_id} className="border-t">
@@ -155,7 +161,10 @@ function Pending() {
                     {customer_details.name}
                   </td>
                   <td className="td-class p-4 suspended-text">
-                    {customer_details.email}
+                    {user_bank_verification}
+                  </td>
+                  <td className="td-class p-4 suspended-text">
+                    {user_payment_name}
                   </td>
                   <td className="td-class p-4 suspended-text">
                     {new Date(created_at).getUTCDate()}{" "}
@@ -170,6 +179,7 @@ function Pending() {
                       onClick={() => {
                         setOrderItems(order_items);
                         setOrderID(order_id);
+                        setCustomOrderItems(custom_order_items)
                       }}
                       className="rounded-md bg-default-500/50 px-4 py-3 text-xs font-semibold uppercase text-white antialiased block mx-auto w-fit cursor-pointer"
                     >
@@ -235,7 +245,11 @@ function Pending() {
         {orderItems.length >= 1 && (
           <OrderPopup
             items={orderItems}
-            closeFn={() => setOrderItems([])}
+            customOrderItems={customOrderItems}
+            closeFn={() => {
+              setOrderItems([]);
+              setCustomOrderItems([]);
+            }}
             handleConfirm={(bankRef) => handleConfirm(bankRef, orderID)}
           />
         )}

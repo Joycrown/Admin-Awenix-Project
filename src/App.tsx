@@ -8,6 +8,7 @@ import SignPage from "./pages/sign";
 const Orders = lazy(() => import("./pages/orders"));
 const Pending = lazy(() => import("./pages/pending"));
 const Products = lazy(() => import("./pages/products"));
+const Services = lazy(() => import("./pages/services"));
 const Settings = lazy(() => import("./pages/settings"));
 const LandingPage = lazy(() => import("./pages/landing"));
 
@@ -21,6 +22,7 @@ function App() {
             <Route path="/admin/" element={<LandingPage />}></Route>
             <Route path="/admin/dashboard" element={<LandingPage />}></Route>
             <Route path="/admin/products" element={<Products />}></Route>
+            <Route path="/admin/services" element={<Services />}></Route>
             <Route path="/admin/orders" element={<Orders />}></Route>
             <Route path="/admin/pending" element={<Pending />}></Route>
             <Route path="/admin/settings" element={<Settings />}></Route>
