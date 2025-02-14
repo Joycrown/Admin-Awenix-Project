@@ -2,13 +2,12 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-
 import { months } from "../utils/data";
-import { orderProduct, orderProps,orderCustomItem } from "../utils/interface";
+import { orderProps } from "../utils/interface";
 import { useAuthContext } from "../utils/authContext";
 import LoadingScreen from "../components/loadingScreen";
-import OrderPopup from "../components/orderPopup";
 import ReceiptDownload from "../utils/receiptDownload";
+import OrderPopup from "../components/orderPopup";
 
 interface PaginatedOrdersResponse {
   items: orderProps[];
@@ -23,13 +22,11 @@ interface PaginatedOrdersResponse {
 function Pending() {
   const { user } = useAuthContext();
   const [loading, setLoading] = useState(false);
-  const [orderID, setOrderID] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState<orderProps | null>(null);
   const [actionLoader, setActionLoader] = useState(false);
-  const [orderItems, setOrderItems] = useState<orderProduct[]>([]);
-  const [customOrderItems, setCustomOrderItems] = useState<orderCustomItem[]>([]);
   const [pagination, setPagination] = useState({
     page: 1,
-    pageSize: 10
+    pageSize: 10,
   });
   const [paginatedOrders, setPaginatedOrders] = useState<PaginatedOrdersResponse>({
     items: [],
@@ -38,24 +35,25 @@ function Pending() {
     current_page: 1,
     page_size: 10,
     has_next: false,
-    has_previous: false
+    has_previous: false,
   });
 
   const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
 
   useEffect(() => {
     setLoading(true);
-
     axios
-      .get(`${endpoint}/orders/pending?page=${pagination.page}&page_size=${pagination.pageSize}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user.accessToken}`,
-        },
-      })
+      .get(
+        `${endpoint}/orders/pending?page=${pagination.page}&page_size=${pagination.pageSize}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+        }
+      )
       .then((res) => {
         setPaginatedOrders(res.data);
-        console.log(res.data)
       })
       .catch((err) => {
         if (err.response) {
@@ -65,12 +63,11 @@ function Pending() {
       .finally(() => setLoading(false));
   }, [user, endpoint, pagination.page, pagination.pageSize]);
 
-  const handleConfirm = (reference: string, id: string) => {
+  const handleConfirm = (paymentRef: string, orderId: string) => {
     setActionLoader(true);
-
     axios
       .post(
-        `${endpoint}/admin/confirm_order/${id}?payment_reference=${reference}`,
+        `${endpoint}/admin/confirm_order/${orderId}?payment_reference=${paymentRef}`,
         {},
         {
           headers: {
@@ -80,13 +77,14 @@ function Pending() {
         }
       )
       .then(() => {
-        toast.success(`${id} has been confirmed`);
-        // Refresh the current page after confirmation
-        setPaginatedOrders(prev => ({
+        toast.success(`${orderId} has been confirmed`);
+        // Remove confirmed order from the list.
+        setPaginatedOrders((prev) => ({
           ...prev,
-          items: prev.items.filter(item => item.order_id !== id),
-          total_items: prev.total_items - 1
+          items: prev.items.filter((item) => item.order_id !== orderId),
+          total_items: prev.total_items - 1,
         }));
+        setSelectedOrder(null);
       })
       .catch((err) => {
         toast.error(
@@ -97,9 +95,9 @@ function Pending() {
   };
 
   const handlePageChange = (newPage: number) => {
-    setPagination(prev => ({
+    setPagination((prev) => ({
       ...prev,
-      page: newPage
+      page: newPage,
     }));
   };
 
@@ -123,8 +121,8 @@ function Pending() {
             <tr>
               <th className="text-start p-4">ID</th>
               <th className="text-start px-4">Name</th>
-              <th className="text-start px-4">Bank Paid To</th>
-              <th className="text-start px-4">Paid by</th>
+              {/* <th className="text-start px-4">Bank Paid To</th>
+              <th className="text-start px-4">Paid by</th> */}
               <th className="text-start px-4">Date</th>
               <th className="text-start px-4">Total Price</th>
               <th className="text-center">Action</th>
@@ -133,62 +131,53 @@ function Pending() {
           <tbody className="border bg-white">
             {loading ? (
               <tr>
-                <td colSpan={6} className="p-4 text-center bg-default-700 bg-opacity-20">
+                <td
+                  colSpan={7}
+                  className="p-4 text-center bg-default-700 bg-opacity-20"
+                >
                   Loading...
                 </td>
               </tr>
             ) : paginatedOrders.items.length === 0 ? (
               <tr>
-                <td colSpan={6} className="p-4 text-center">
+                <td colSpan={7} className="p-4 text-center">
                   No pending orders found
                 </td>
               </tr>
             ) : (
-              paginatedOrders.items.map(({
-                order_id,
-                created_at,
-                total_price,
-                customer_details,
-                order_items,
-                user_payment_name,
-                user_bank_verification,
-                custom_order_items,
-                user_receipt_url,
-              }) => (
-                <tr key={order_id} className="border-t">
-                  <td className="td-class p-4 suspended-text">{order_id}</td>
+              paginatedOrders.items.map((order) => (
+                <tr key={order.order_id} className="border-t">
                   <td className="td-class p-4 suspended-text">
-                    {customer_details.name}
+                    {order.order_id}
                   </td>
                   <td className="td-class p-4 suspended-text">
-                    {user_bank_verification}
+                    {order.customer_details.name}
+                  </td>
+                  {/* <td className="td-class p-4 suspended-text">
+                    {order.user_bank_verification}
                   </td>
                   <td className="td-class p-4 suspended-text">
-                    {user_payment_name}
+                    {order.user_payment_name}
+                  </td> */}
+                  <td className="td-class p-4 suspended-text">
+                    {new Date(order.created_at).getUTCDate()}{" "}
+                    {months[new Date(order.created_at).getMonth()]}{" "}
+                    {new Date(order.created_at).getFullYear()}
                   </td>
                   <td className="td-class p-4 suspended-text">
-                    {new Date(created_at).getUTCDate()}{" "}
-                    {months[new Date(created_at).getMonth()]}{" "}
-                    {new Date(created_at).getFullYear()}
-                  </td>
-                  <td className="td-class p-4 suspended-text">
-                    ₦ {total_price.toLocaleString("en-gb")}
+                    ₦ {order.total_price.toLocaleString("en-gb")}
                   </td>
                   <td className="td-class p-4 flex">
-                    <span 
-                      onClick={() => {
-                        setOrderItems(order_items);
-                        setOrderID(order_id);
-                        setCustomOrderItems(custom_order_items)
-                      }}
-                      className="rounded-md bg-default-500/50 px-4 py-3 text-xs font-semibold uppercase text-white antialiased block mx-auto w-fit cursor-pointer"
+                    <span
+                      onClick={() => setSelectedOrder(order)}
+                      className="rounded-md bg-default-500/50 px-4 py-3 text-xs font-semibold uppercase text-white antialiased block mx-auto cursor-pointer"
                     >
                       View
                     </span>
                     <ReceiptDownload
                       receivedFrom="pending"
-                      receiptUrl={user_receipt_url}
-                      orderId={order_id}
+                      receiptUrl={order.user_receipt_url}
+                      orderId={order.order_id}
                     />
                   </td>
                 </tr>
@@ -202,25 +191,30 @@ function Pending() {
       {!loading && paginatedOrders.total_pages > 1 && (
         <div className="flex justify-between items-center mt-4 px-4">
           <button
-            onClick={() => handlePageChange(paginatedOrders.current_page - 1)}
+            onClick={() =>
+              handlePageChange(paginatedOrders.current_page - 1)
+            }
             disabled={!paginatedOrders.has_previous}
             className="flex items-center gap-2 px-4 py-2 text-sm rounded bg-default-700 disabled:opacity-50"
           >
             <FaChevronLeft size={12} />
             Previous
           </button>
-          
+
           <div className="flex items-center gap-2">
             <span className="text-sm">
-              Page {paginatedOrders.current_page} of {paginatedOrders.total_pages}
+              Page {paginatedOrders.current_page} of{" "}
+              {paginatedOrders.total_pages}
             </span>
             <select
               value={pagination.pageSize}
-              onChange={(e) => setPagination(prev => ({
-                ...prev,
-                pageSize: Number(e.target.value),
-                page: 1
-              }))}
+              onChange={(e) =>
+                setPagination((prev) => ({
+                  ...prev,
+                  pageSize: Number(e.target.value),
+                  page: 1,
+                }))
+              }
               className="ml-2 px-2 py-1 bg-default-700 rounded text-sm"
             >
               <option value="10">10 / page</option>
@@ -231,7 +225,9 @@ function Pending() {
           </div>
 
           <button
-            onClick={() => handlePageChange(paginatedOrders.current_page + 1)}
+            onClick={() =>
+              handlePageChange(paginatedOrders.current_page + 1)
+            }
             disabled={!paginatedOrders.has_next}
             className="flex items-center gap-2 px-4 py-2 text-sm rounded bg-default-700 disabled:opacity-50"
           >
@@ -241,19 +237,13 @@ function Pending() {
         </div>
       )}
 
-      <div>
-        {orderItems.length >= 1 && (
-          <OrderPopup
-            items={orderItems}
-            customOrderItems={customOrderItems}
-            closeFn={() => {
-              setOrderItems([]);
-              setCustomOrderItems([]);
-            }}
-            handleConfirm={(bankRef) => handleConfirm(bankRef, orderID)}
-          />
-        )}
-      </div>
+      {selectedOrder && (
+        <OrderPopup
+          order={selectedOrder}
+          closeFn={() => setSelectedOrder(null)}
+          handleConfirm={handleConfirm}
+        />
+      )}
     </section>
   );
 }

@@ -50,6 +50,16 @@ export interface orderCustomItem {
   quantity: number;
 }
 
+
+export interface PaymentOut {
+  payment_option: string
+  bank: string
+  payee_name: string
+  delivery_person: string
+  amount_paid: number
+}
+
+
 export interface orderProps {
   order_id: string;
   total_price: number;
@@ -71,6 +81,7 @@ export interface orderProps {
   custom_order_items: orderCustomItem[]
   payment_reference?: string;
   order_verified_by?: string;
+  payment: PaymentOut
 }
 
 
