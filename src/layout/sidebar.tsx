@@ -52,6 +52,7 @@ function Sidebar({ mobile }: { mobile: boolean }) {
       wsRef.current.send(JSON.stringify({
         type: "mark_as_read"
       }));
+      setOrderCount(0); // Clear the notification count immediately
     }
   };
 

@@ -15,6 +15,7 @@ export interface adminUser {
   phone_no: string;
   admin_status: string;
   user_type: string;
+  isDeleting:boolean;
   created_at: Date;
   isChanging: boolean;
 }

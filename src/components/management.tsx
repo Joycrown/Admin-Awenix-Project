@@ -21,7 +21,11 @@ function SuperManagement({ user }: { user: userProps }) {
       })
       .then((res) =>
         setAdmins(
-          res.data.map((data: adminUser) => ({ ...data, isChanging: false }))
+          res.data.map((data: adminUser) => ({
+            ...data,
+            isChanging: false,
+            isDeleting: false,
+          }))
         )
       )
       .catch((err) =>
@@ -63,7 +67,7 @@ function SuperManagement({ user }: { user: userProps }) {
               : data
           )
         );
-        toast.success(`Admin access have been ${grant.toLowerCase()}`);
+        toast.success(`Admin access has been ${grant.toLowerCase()}`);
       })
       .catch((err) => {
         toast.error(
@@ -72,6 +76,42 @@ function SuperManagement({ user }: { user: userProps }) {
         setAdmins((prev) =>
           prev.map((data) =>
             data.id === id ? { ...data, isChanging: false } : data
+          )
+        );
+      });
+  };
+
+  const handleDeleteIncompleteAdmin = (email: string) => {
+    const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
+    // Set isDeleting true for the admin with the matching email
+    setAdmins((prev) =>
+      prev.map((admin) =>
+        admin.email === email ? { ...admin, isDeleting: true } : admin
+      )
+    );
+
+    axios
+      .delete(
+        `${endpoint}/admin/delete-incomplete?email=${encodeURIComponent(email)}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+        }
+      )
+      .then(() => {
+        setAdmins((prev) => prev.filter((admin) => admin.email !== email));
+        toast.success("Incomplete admin deleted successfully");
+      })
+      .catch((err) => {
+        toast.error(
+          err?.response?.data?.detail || "Error deleting incomplete admin"
+        );
+        // Reset isDeleting state if deletion fails
+        setAdmins((prev) =>
+          prev.map((admin) =>
+            admin.email === email ? { ...admin, isDeleting: false } : admin
           )
         );
       });
@@ -96,11 +136,12 @@ function SuperManagement({ user }: { user: userProps }) {
                 <th className="text-start px-4">Date Added</th>
                 <th className="text-start px-4">Status</th>
                 <th className="text-center">Access</th>
+                <th className="text-center">Action</th>
               </tr>
             </thead>
             <tbody className="border bg-slate-100 [&>*:nth-child(even)]:bg-slate-300">
               {admins
-                .filter((admins) => admins.id !== user.id)
+                .filter((admin) => admin.id !== user.id)
                 .map(
                   ({
                     first_name,
@@ -111,6 +152,7 @@ function SuperManagement({ user }: { user: userProps }) {
                     created_at,
                     id,
                     isChanging,
+                    isDeleting,
                   }: adminUser) => (
                     <tr key={id}>
                       <td
@@ -162,6 +204,22 @@ function SuperManagement({ user }: { user: userProps }) {
                             </option>
                           </select>
                         </span>
+                      </td>
+                      <td className="p-4 text-center">
+                        {(first_name === "N/A" || last_name === "N/A") && (
+                          isDeleting ? (
+                            <span className="text-gray-600">Processing...</span>
+                          ) : (
+                            <button
+                              onClick={() =>
+                                handleDeleteIncompleteAdmin(email)
+                              }
+                              className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors"
+                            >
+                              Delete
+                            </button>
+                          )
+                        )}
                       </td>
                     </tr>
                   )
