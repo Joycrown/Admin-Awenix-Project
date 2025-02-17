@@ -7,6 +7,12 @@ import { productProps } from "../utils/interface";
 import AddProduct from "../components/addProduct";
 import { toast } from "react-toastify";
 import { months } from "../utils/data";
+import ConfirmationDialog from "../components/deleteProductConfirmatory";
+
+interface DeleteConfirmation {
+  isOpen: boolean;
+  product: productProps | null;
+}
 
 function Product() {
   const { user } = useAuthContext();
@@ -14,11 +20,16 @@ function Product() {
   const [loading, setLoading] = useState(false);
   const [newlyAdded, setNewlyAdded] = useState(false);
   const [products, setProducts] = useState<productProps[]>([]);
+  const [editingProduct, setEditingProduct] = useState<productProps | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<DeleteConfirmation>({
+    isOpen: false,
+    product: null,
+  });
+  const [isDeleting, setIsDeleting] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
 
-  // Existing useEffect logic for fetching products
   useEffect(() => {
     const params = new URLSearchParams(location.search).get("q");
     if (params) {
@@ -50,28 +61,18 @@ function Product() {
     getProducts();
   }, [user, location, navigate, endpoint]);
 
-  const handleEdit = async (product: productProps, updatedProd: any) => {
-    try {
-      const res = await axios.patch(
-        `${endpoint}/products/${product.name}?name=${updatedProd.name}&description=${updatedProd.description}&price=${updatedProd.price}`,
-        { file: updatedProd.product_image },
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${user.accessToken}`,
-          },
-        }
-      );
-      toast.success(`${product.name} successfully updated`);
-      setProducts(prev =>
-        prev.map(p => p.name === product.name ? res.data : p)
-      );
-    } catch (err: any) {
-      toast.error(err.message || "Cannot edit product right now");
-    }
+  const handleDeleteClick = (product: productProps) => {
+    setDeleteConfirmation({
+      isOpen: true,
+      product,
+    });
   };
 
-  const handleDelete = async (product: productProps) => {
+  const handleDeleteConfirm = async () => {
+    const product = deleteConfirmation.product;
+    if (!product) return;
+
+    setIsDeleting(true);
     try {
       await axios.put(`${endpoint}/products/${product.name}/remove`, null, {
         headers: {
@@ -81,9 +82,16 @@ function Product() {
       });
       toast.success(`${product.name} successfully deleted`);
       setProducts(prev => prev.filter(p => p.name !== product.name));
-    } catch (err) {
-      toast.error("Cannot delete product right now");
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Cannot delete product right now");
+    } finally {
+      setIsDeleting(false);
+      setDeleteConfirmation({ isOpen: false, product: null });
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteConfirmation({ isOpen: false, product: null });
   };
 
   return (
@@ -147,16 +155,19 @@ function Product() {
                   <td className="p-3">
                     <div className="flex gap-2">
                       <button
-                        onClick={() => handleEdit(product, {})}
+                        onClick={() => setEditingProduct(product)}
                         className="px-3 py-2 bg-default-700 text-white rounded hover:bg-green-600 text-sm"
                       >
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(product)}
-                        className="px-3 py-2 bg-default-700 text-white rounded hover:bg-red-600 text-sm"
+                        onClick={() => handleDeleteClick(product)}
+                        disabled={isDeleting}
+                        className={`px-3 py-2 bg-red-400 text-white rounded hover:bg-red-600 text-sm ${
+                          isDeleting ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
                       >
-                        Delete
+                        {isDeleting ? 'Deleting...' : 'Delete'}
                       </button>
                     </div>
                   </td>
@@ -169,15 +180,34 @@ function Product() {
         <p>No products available</p>
       )}
 
-      {newlyAdded && (
+      {(newlyAdded || editingProduct) && (
         <AddProduct
-          updateList={(newProd) => {
-            setNewlyAdded(false);
-            setProducts((prods) => [...prods, newProd]);
+          existingProduct={editingProduct}
+          updateList={(updatedProd) => {
+            if (editingProduct) {
+              setProducts(prev => 
+                prev.map(p => p.name === editingProduct.name ? updatedProd : p)
+              );
+              setEditingProduct(null);
+            } else {
+              setProducts(prev => [...prev, updatedProd]);
+              setNewlyAdded(false);
+            }
           }}
-          closeFn={() => setNewlyAdded(false)}
+          closeFn={() => {
+            setEditingProduct(null);
+            setNewlyAdded(false);
+          }}
         />
       )}
+
+      <ConfirmationDialog
+        isOpen={deleteConfirmation.isOpen}
+        title="Delete Product"
+        message={`Are you sure you want to delete ${deleteConfirmation.product?.name}? This action cannot be undone.`}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+      />
     </section>
   );
 }

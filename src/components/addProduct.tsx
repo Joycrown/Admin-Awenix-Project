@@ -8,28 +8,30 @@ import { toast } from "react-toastify";
 import LoadingScreen from "./loadingScreen";
 
 function AddProduct({
+  existingProduct,
   updateList,
   closeFn,
 }: {
+  existingProduct?: productProps | null;
   updateList: (product: productProps) => void;
   closeFn: () => void;
 }) {
   const { user } = useAuthContext();
   const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
   const [loading, setLoading] = useState(false);
-  const [displayImage, setDisplayImage] = useState("");
+  const [displayImage, setDisplayImage] = useState(existingProduct?.product_image || "");
 
   const [product, setProduct] = useState<productPopProps>({
-    price: 0,
-    name: "",
-    description: "",
+    price: existingProduct?.price || 0,
+    name: existingProduct?.name || "",
+    description: existingProduct?.description || "",
     product_image: "",
-    size: "kg",
+    size: existingProduct?.size || "kg",
   });
 
   const imageRef = useRef<HTMLInputElement>(null);
 
-  const addProduct = () => {
+  const handleSubmit = () => {
     const { name, price, description, size, product_image } = product;
     if (name === "") {
       toast.error("Name must be filled");
@@ -44,8 +46,57 @@ function AddProduct({
 
     setLoading(true);
 
-    axios
-      .post(
+    if (existingProduct) {
+      // Handle edit
+      const productData = {
+        name,
+        description,
+        price,
+        size
+      };
+
+      const requests = [
+        axios.patch(
+          `${endpoint}/products/${existingProduct.name}`,
+          productData,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${user.accessToken}`,
+            },
+          }
+        )
+      ];
+
+      if (product_image) {
+        const fileData = new FormData();
+        fileData.append('file', product_image);
+        requests.push(
+          axios.patch(
+            `${endpoint}/products/${existingProduct.name}/image`,
+            fileData,
+            {
+              headers: {
+                Authorization: `Bearer ${user.accessToken}`,
+              },
+            }
+          )
+        );
+      }
+
+      Promise.all(requests)
+        .then(([res]) => {
+          setLoading(false);
+          toast.success(`${name} successfully updated`);
+          updateList(res.data);
+        })
+        .catch((err) => {
+          setLoading(false);
+          toast.error(err.response?.data?.detail || "Cannot update product right now");
+        });
+    } else {
+      // Handle create new product
+      axios.post(
         `${endpoint}/create_product?product_name=${name}&product_desc=${description}&size=${size}&amount=${price}`,
         { file: product_image },
         {
@@ -56,16 +107,17 @@ function AddProduct({
           },
         }
       )
-      .then((res) => {
-        setLoading(false);
-        toast.success(`${product.name} successfully added`);
-        updateList(res.data);
-      })
-      .catch((err) => {
-        setLoading(false);
-        toast.error("Cannot add product right now... Try again later");
-        console.error(err);
-      });
+        .then((res) => {
+          setLoading(false);
+          toast.success(`${name} successfully added`);
+          updateList(res.data);
+        })
+        .catch((err) => {
+          setLoading(false);
+          toast.error("Cannot add product right now... Try again later");
+          console.error(err);
+        });
+    }
   };
 
   const setImage = (event: any) => {
@@ -73,7 +125,6 @@ function AddProduct({
       const file = event.target.files[0];
       const url = window.URL.createObjectURL(file);
       setDisplayImage(url);
-
       setProduct((prev) => ({ ...prev, product_image: file }));
     }
   };
@@ -172,10 +223,10 @@ function AddProduct({
 
           <div className="flex gap-3">
             <div
-              onClick={addProduct}
+              onClick={handleSubmit}
               className="bg-default-500 text-white py-3 px-4 cursor-pointer rounded text-xs"
             >
-              Add product
+              {existingProduct ? 'Update product' : 'Add product'}
             </div>
             <div
               onClick={closeFn}
