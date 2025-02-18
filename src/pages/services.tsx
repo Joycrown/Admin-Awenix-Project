@@ -50,6 +50,18 @@ const Services = () => {
     }
   }, [user]);
 
+
+  useEffect(() => {
+    if (services.length > 0) {
+      const millingService = services.find((service: ServiceProps) =>
+        service.name.toLowerCase().includes("milling")
+      );
+      if (millingService) {
+        localStorage.setItem("millingPrice", millingService.price.toString());
+      }
+    }
+  }, [services]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {

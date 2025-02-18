@@ -45,7 +45,7 @@ function ProtectedRoutes() {
 
     if (user.userType === "user") {
       toast.error("You are not authorized...");
-      window.location.href = `https://awenix.vercel.app/account/login`;
+      window.location.href = `https://awenixagroalliedservices.ng/account/login`;
       return;
     }
 

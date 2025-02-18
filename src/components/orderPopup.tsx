@@ -35,7 +35,8 @@ function OrderPopup({
   // Calculate miscellaneous fee (if any) from a sample item
   const miscItem = items.find((item) => item.miscellaneous != null);
   const miscellaneousValue = miscItem ? miscItem.miscellaneous : 0;
-  const miscellaneousPercentage = 10;
+  const savedMillingPrice = localStorage.getItem("millingPrice");
+  const miscellaneousPercentage = savedMillingPrice ? parseFloat(savedMillingPrice) : 10;
   const miscellaneousQuantity = miscellaneousValue / miscellaneousPercentage;
 
   // Handle the confirm button click
