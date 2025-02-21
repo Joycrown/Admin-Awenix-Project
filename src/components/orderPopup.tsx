@@ -130,7 +130,7 @@ function OrderPopup({
                   {items.map((item, index) => (
                     <tr key={`${index}-${item.product_id}`}>
                       <td className="px-4 py-2 capitalize">{item.product.name}</td>
-                      <td className="px-4 py-2 text-center">₦ {item.product.price}</td>
+                      <td className="px-4 py-2 text-center">₦ {item.price_per_unit}</td>
                       <td className="px-4 py-2 text-center">{item.quantity}</td>
                       <td className="px-4 py-2 text-center">
                         ₦ {item.total_price.toLocaleString("en-GB")}
