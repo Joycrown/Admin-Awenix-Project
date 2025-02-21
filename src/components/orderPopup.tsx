@@ -36,24 +36,124 @@ function OrderPopup({
   const miscItem = items.find((item) => item.miscellaneous != null);
   const miscellaneousValue = miscItem ? miscItem.miscellaneous : 0;
   const savedMillingPrice = localStorage.getItem("millingPrice");
-  const miscellaneousPercentage = savedMillingPrice ? parseFloat(savedMillingPrice) : 10;
+  const miscellaneousPercentage = savedMillingPrice
+    ? parseFloat(savedMillingPrice)
+    : 10;
   const miscellaneousQuantity = miscellaneousValue / miscellaneousPercentage;
 
-  // Handle the confirm button click
+  // onConfirm validation depends on the context.
   const onConfirm = () => {
     const paymentOption = order.payment?.payment_option;
-    // For "delivery", we don't require a payment reference.
-    if (paymentOption !== "delivery" && selectedPaymentRef === "") {
-      toast.error("Select a payment reference");
-      return;
+    if (forceConfirm) {
+      // In Orders context, even if payment option is "delivery", require a bank selection.
+      if (selectedPaymentRef === "") {
+        toast.error("Select Payment Reference");
+        return;
+      }
+    } else {
+      // In Pending context: for full payment orders, require bank selection.
+      // For delivery orders, no bank selection is needed.
+      if (paymentOption !== "delivery" && selectedPaymentRef === "") {
+        toast.error("Select a payment reference");
+        return;
+      }
     }
-    // Pass the forceConfirm flag along with the API call.
-    handleConfirm(
-      paymentOption === "delivery" ? "" : selectedPaymentRef,
-      order.order_id,
-      forceConfirm
-    );
+    // For Pending, if it's a delivery order, pass an empty string; otherwise, pass the selected reference.
+    const ref =
+      !forceConfirm && paymentOption === "delivery"
+        ? ""
+        : selectedPaymentRef;
+    handleConfirm(ref, order.order_id, forceConfirm);
   };
+
+  // Build the confirmation/rendering section based on the context and order status.
+  let renderConfirmationSection = null;
+
+  if (!forceConfirm) {
+    // Pending context
+    if (order.status !== "Confirmed") {
+      if (order.payment?.payment_option === "delivery") {
+        // Delivery payment in Pending: no bank selection.
+        renderConfirmationSection = (
+          <div className="flex flex-col sm:flex-row gap-4 items-center">
+            <div
+              onClick={onConfirm}
+              className="w-full sm:w-auto bg-default-500 text-white py-4 px-4 cursor-pointer rounded text-xs text-center"
+            >
+              Confirm Order
+            </div>
+          </div>
+        );
+      } else {
+        // Full payment in Pending: require bank selection.
+        renderConfirmationSection = (
+          <div className="flex flex-col sm:flex-row gap-4 items-center">
+            <div className="border rounded text-xs w-full sm:w-1/2 bg-white">
+              <select
+                defaultValue=""
+                onChange={(e) => setSelectedPaymentRef(e.target.value)}
+                className="w-full py-3 bg-transparent border-none outline-none"
+              >
+                <option value="" hidden>
+                  Select Payment Reference
+                </option>
+                {PAYMENT_REFERENCE.map((bank) => (
+                  <option key={bank} value={bank} className="capitalize">
+                    {bank}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div
+              onClick={onConfirm}
+              className="w-full sm:w-auto bg-default-500 text-white py-4 px-4 cursor-pointer rounded text-xs text-center"
+            >
+              Confirm Order
+            </div>
+          </div>
+        );
+      }
+    }
+  } else {
+    // Orders context (forceConfirm true)
+    if (order.status === "Confirmed") {
+      renderConfirmationSection = null; // Already confirmed
+    } else if (order.status === "ordered") {
+      renderConfirmationSection = (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 text-yellow-700">
+        <p className="font-medium">Order has not been initially responded to.</p>
+      </div>
+      );
+    } else if (order.status === "Received") {
+      // For Received orders (delivery payment), require bank selection even though the payment option is delivery.
+      renderConfirmationSection = (
+        <div className="flex flex-col sm:flex-row gap-4 items-center">
+          <div className="border rounded text-xs w-full sm:w-1/2 bg-white">
+            <select
+              defaultValue=""
+              onChange={(e) => setSelectedPaymentRef(e.target.value)}
+              className="w-full py-3 bg-transparent border-none outline-none"
+            >
+              <option value="" hidden>
+                Select Payment Reference
+              </option>
+              {PAYMENT_REFERENCE.map((bank) => (
+                <option key={bank} value={bank} className="capitalize">
+                  {bank}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div
+            onClick={onConfirm}
+            className="w-full sm:w-auto bg-default-500 text-white py-4 px-4 cursor-pointer rounded text-xs text-center"
+          >
+            Confirm Order
+          </div>
+        </div>
+      );
+    }
+  }
 
   const getPaymentMethodLabel = (option: string): string => {
     switch (option) {
@@ -71,7 +171,10 @@ function OrderPopup({
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
       {/* Backdrop */}
-      <div onClick={closeFn} className="absolute inset-0 bg-black bg-opacity-70 cursor-pointer" />
+      <div
+        onClick={closeFn}
+        className="absolute inset-0 bg-black bg-opacity-70 cursor-pointer"
+      />
       <div className="relative bg-white rounded p-6 w-[90%] sm:w-[80%] md:w-[60%] max-h-[80vh] overflow-y-auto">
         {/* Close Icon */}
         <div className="absolute right-4 top-4">
@@ -193,36 +296,8 @@ function OrderPopup({
             </div>
           </div>
 
-          {/* Payment & Confirm Section (hidden when order is already confirmed) */}
-          {order.status !== "Confirmed" && (
-            <div className="flex flex-col sm:flex-row gap-4 items-center">
-              {/* Render payment reference selector only if payment option is not "delivery" */}
-              {order.payment?.payment_option !== "delivery" && (
-                <div className="border rounded text-xs w-full sm:w-1/2 bg-white">
-                  <select
-                    defaultValue=""
-                    onChange={(e) => setSelectedPaymentRef(e.target.value)}
-                    className="w-full py-3 bg-transparent border-none outline-none"
-                  >
-                    <option value="" hidden>
-                      Select Payment Reference
-                    </option>
-                    {PAYMENT_REFERENCE.map((bank) => (
-                      <option key={bank} value={bank} className="capitalize">
-                        {bank}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              <div
-                onClick={onConfirm}
-                className="w-full sm:w-auto bg-default-500 text-white py-4 px-4 cursor-pointer rounded text-xs text-center"
-              >
-                Confirm Order
-              </div>
-            </div>
-          )}
+          {/* Confirmation / Payment Verification Section */}
+          {renderConfirmationSection}
         </div>
       </div>
     </div>
