@@ -7,6 +7,7 @@ import { IoSpeedometerOutline, IoSettingsOutline } from "react-icons/io5";
 import { MdWorkspacesFilled } from "react-icons/md";
 import { useEffect, useRef, useState } from "react";
 import { FaBell } from "react-icons/fa6";
+import { FaUsers } from "react-icons/fa";
 
 function Sidebar({ mobile }: { mobile: boolean }) {
   const navLinks = [
@@ -35,6 +36,11 @@ function Sidebar({ mobile }: { mobile: boolean }) {
       name: "Pending Lists",
       route: "/admin/pending",
       icon: <BsCashCoin size="1rem" />,
+    },
+    {
+      name: "Customers",
+      route: "/admin/customers",
+      icon: <FaUsers size="1rem" />,
     },
   ];
 

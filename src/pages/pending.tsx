@@ -1,7 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaTrash } from "react-icons/fa";
 import { months } from "../utils/data";
 import { orderProps } from "../utils/interface";
 import { useAuthContext } from "../utils/authContext";
@@ -24,6 +24,8 @@ function Pending() {
   const [loading, setLoading] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<orderProps | null>(null);
   const [actionLoader, setActionLoader] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 10,
@@ -94,11 +96,49 @@ function Pending() {
       .finally(() => setActionLoader(false));
   };
 
+  const handleDelete = () => {
+    if (!orderToDelete) return;
+
+    setActionLoader(true);
+    axios
+      .delete(
+        `${endpoint}/admin/orders/${orderToDelete}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+        }
+      )
+      .then(() => {
+        toast.success(`Order ${orderToDelete} has been deleted`);
+        // Remove deleted order from the list
+        setPaginatedOrders((prev) => ({
+          ...prev,
+          items: prev.items.filter((item) => item.order_id !== orderToDelete),
+          total_items: prev.total_items - 1,
+        }));
+        setOrderToDelete(null);
+        setDeleteModalOpen(false);
+      })
+      .catch((err) => {
+        toast.error(
+          err?.response?.data?.detail || "Error while deleting order"
+        );
+      })
+      .finally(() => setActionLoader(false));
+  };
+
   const handlePageChange = (newPage: number) => {
     setPagination((prev) => ({
       ...prev,
       page: newPage,
     }));
+  };
+
+  const openDeleteModal = (orderId: string) => {
+    setOrderToDelete(orderId);
+    setDeleteModalOpen(true);
   };
 
   return (
@@ -167,10 +207,10 @@ function Pending() {
                   <td className="td-class p-4 suspended-text">
                     ₦ {order.total_price.toLocaleString("en-gb")}
                   </td>
-                  <td className="td-class p-4 flex">
+                  <td className="td-class p-4 flex gap-2">
                     <span
                       onClick={() => setSelectedOrder(order)}
-                      className="rounded-md bg-default-500/50 px-4 py-3 text-xs font-semibold uppercase text-white antialiased block mx-auto cursor-pointer"
+                      className="rounded-md bg-default-500/50 px-4 py-3 text-xs font-semibold uppercase text-white antialiased cursor-pointer"
                     >
                       View
                     </span>
@@ -179,6 +219,14 @@ function Pending() {
                       receiptUrl={order.user_receipt_url}
                       orderId={order.order_id}
                     />
+                    {user.userType === "admin" && (
+                      <span
+                        onClick={() => openDeleteModal(order.order_id)}
+                        className="rounded-md bg-red-500/70 px-4 py-3 text-xs font-semibold uppercase text-white antialiased cursor-pointer flex items-center"
+                      >
+                        <FaTrash className="mr-1" size={12} /> Delete
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))
@@ -243,6 +291,36 @@ function Pending() {
           closeFn={() => setSelectedOrder(null)}
           handleConfirm={handleConfirm}
         />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+            <h3 className="text-xl font-bold mb-4">Confirm Deletion</h3>
+            <p className="mb-6">
+              Are you sure you want to delete order <span className="font-semibold">{orderToDelete}</span>?
+              This action cannot be undone and will permanently remove the order and all associated data.
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => {
+                  setDeleteModalOpen(false);
+                  setOrderToDelete(null);
+                }}
+                className="px-4 py-2 rounded bg-gray-200 text-gray-800 hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600"
+              >
+                Delete Order
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </section>
   );
