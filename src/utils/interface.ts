@@ -25,6 +25,7 @@ export interface productProps {
   description: string;
   price: number;
   product_image: string;
+  removed: boolean;
   size: string;
   last_edited_by: string;
   updated_at: string;

@@ -12,6 +12,7 @@ import ConfirmationDialog from "../components/deleteProductConfirmatory";
 interface DeleteConfirmation {
   isOpen: boolean;
   product: productProps | null;
+  action: "remove" | "restore";
 }
 
 function Product() {
@@ -24,8 +25,9 @@ function Product() {
   const [deleteConfirmation, setDeleteConfirmation] = useState<DeleteConfirmation>({
     isOpen: false,
     product: null,
+    action: "remove"
   });
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
@@ -61,37 +63,51 @@ function Product() {
     getProducts();
   }, [user, location, navigate, endpoint]);
 
-  const handleDeleteClick = (product: productProps) => {
+  const handleProductActionClick = (product: productProps, action: "remove" | "restore") => {
     setDeleteConfirmation({
       isOpen: true,
       product,
+      action
     });
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleProductActionConfirm = async () => {
     const product = deleteConfirmation.product;
     if (!product) return;
 
-    setIsDeleting(true);
+    setIsProcessing(true);
     try {
-      await axios.put(`${endpoint}/products/${product.name}/remove`, null, {
+      await axios.put(`${endpoint}/products/${product.name}/toggle-removal`, null, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${user.accessToken}`,
         },
       });
-      toast.success(`${product.name} successfully deleted`);
-      setProducts(prev => prev.filter(p => p.name !== product.name));
+      
+      const actionText = deleteConfirmation.action === "remove" ? "removed" : "restored";
+      toast.success(`${product.name} successfully ${actionText}`);
+      
+      if (deleteConfirmation.action === "remove") {
+        // Mark as removed in the UI or remove from the list
+        setProducts(prev => prev.map(p => 
+          p.name === product.name ? { ...p, removed: true } : p
+        ));
+      } else {
+        // Mark as restored in the UI
+        setProducts(prev => prev.map(p => 
+          p.name === product.name ? { ...p, removed: false } : p
+        ));
+      }
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Cannot delete product right now");
+      toast.error(err.response?.data?.detail || `Cannot ${deleteConfirmation.action} product right now`);
     } finally {
-      setIsDeleting(false);
-      setDeleteConfirmation({ isOpen: false, product: null });
+      setIsProcessing(false);
+      setDeleteConfirmation({ isOpen: false, product: null, action: "remove" });
     }
   };
 
-  const handleDeleteCancel = () => {
-    setDeleteConfirmation({ isOpen: false, product: null });
+  const handleActionCancel = () => {
+    setDeleteConfirmation({ isOpen: false, product: null, action: "remove" });
   };
 
   return (
@@ -119,6 +135,7 @@ function Product() {
                 <th className="p-3 text-left">Image</th>
                 <th className="p-3 text-left">Product Name</th>
                 <th className="p-3 text-left">Price</th>
+                <th className="p-3 text-left">Status</th>
                 {user.userType !== "staff" && (
                   <>
                     <th className="p-3 text-left">Last Edited By</th>
@@ -130,17 +147,22 @@ function Product() {
             </thead>
             <tbody>
               {products.map((product, id) => (
-                <tr key={id} className="border-b border-default-200">
+                <tr key={id} className={`border-b border-default-200 ${product.removed ? 'bg-gray-100' : ''}`}>
                   <td className="p-3">
                     <img
                       src={product.product_image}
                       alt={product.name}
-                      className="w-20 h-20 object-cover rounded"
+                      className={`w-20 h-20 object-cover rounded ${product.removed ? 'opacity-50' : ''}`}
                     />
                   </td>
                   <td className="p-3 capitalize">{product.name}</td>
                   <td className="p-3">
                     ₦ {product.price.toLocaleString("en-gb")}/{product.size}
+                  </td>
+                  <td className="p-3">
+                    <span className={`px-2 py-1 rounded text-xs ${product.removed ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                      {product.removed ? 'Removed' : 'Active'}
+                    </span>
                   </td>
                   {user.userType !== "staff" && (
                     <>
@@ -160,15 +182,27 @@ function Product() {
                       >
                         Edit
                       </button>
-                      <button
-                        onClick={() => handleDeleteClick(product)}
-                        disabled={isDeleting}
-                        className={`px-3 py-2 bg-red-400 text-white rounded hover:bg-red-600 text-sm ${
-                          isDeleting ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                      >
-                        {isDeleting ? 'Deleting...' : 'Delete'}
-                      </button>
+                      {product.removed ? (
+                        <button
+                          onClick={() => handleProductActionClick(product, "restore")}
+                          disabled={isProcessing}
+                          className={`px-3 py-2 bg-green-500 text-white rounded hover:bg-green-600 text-sm ${
+                            isProcessing ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                        >
+                          {isProcessing ? 'Processing...' : 'Restore'}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleProductActionClick(product, "remove")}
+                          disabled={isProcessing}
+                          className={`px-3 py-2 bg-red-400 text-white rounded hover:bg-red-600 text-sm ${
+                            isProcessing ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                        >
+                          {isProcessing ? 'Processing...' : 'Remove'}
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -203,10 +237,12 @@ function Product() {
 
       <ConfirmationDialog
         isOpen={deleteConfirmation.isOpen}
-        title="Delete Product"
-        message={`Are you sure you want to delete ${deleteConfirmation.product?.name}? This action cannot be undone.`}
-        onConfirm={handleDeleteConfirm}
-        onCancel={handleDeleteCancel}
+        title={deleteConfirmation.action === "remove" ? "Remove Product" : "Restore Product"}
+        message={`Are you sure you want to ${deleteConfirmation.action} ${deleteConfirmation.product?.name}?`}
+        onConfirm={handleProductActionConfirm}
+        onCancel={handleActionCancel}
+        confirmButtonText={deleteConfirmation.action === "remove" ? "Remove" : "Restore"}
+        confirmButtonClass={deleteConfirmation.action === "remove" ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}
       />
     </section>
   );

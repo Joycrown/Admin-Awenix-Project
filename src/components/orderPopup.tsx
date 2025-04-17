@@ -23,7 +23,7 @@ function OrderPopup({
 }: OrderPopupProps) {
   const [selectedPaymentRef, setSelectedPaymentRef] = useState("");
   // Predefined payment references
-  const PAYMENT_REFERENCE = ["FCMB BANK", "FIRST BANK", "STANBIC BANK"];
+  const PAYMENT_REFERENCE = ["FCMB BANK", "MONIEPOINT", "STANBIC BANK", "CASH"];
 
   // Extract standard and custom order items from order
   const items = order.order_items;

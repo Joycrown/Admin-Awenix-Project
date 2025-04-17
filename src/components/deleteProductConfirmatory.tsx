@@ -6,6 +6,8 @@ interface ConfirmationDialogProps {
   message: string;
   onConfirm: () => void;
   onCancel: () => void;
+  confirmButtonText?: string;
+  confirmButtonClass?: string;
 }
 
 function ConfirmationDialog({
@@ -14,6 +16,8 @@ function ConfirmationDialog({
   message,
   onConfirm,
   onCancel,
+  confirmButtonText = "Delete",
+  confirmButtonClass = "bg-red-600 hover:bg-red-700"
 }: ConfirmationDialogProps) {
   if (!isOpen) return null;
 
@@ -41,9 +45,9 @@ function ConfirmationDialog({
             </button>
             <button
               onClick={onConfirm}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+              className={`px-4 py-2 text-white rounded text-sm ${confirmButtonClass}`}
             >
-              Delete
+              {confirmButtonText}
             </button>
           </div>
         </div>

@@ -5,7 +5,7 @@ import { useAuthContext } from "../utils/authContext";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { months } from "../utils/data";
-import { FaUserCircle, FaAward, FaCrown } from "react-icons/fa";
+import { FaUserCircle, FaAward, FaCrown, FaTrash } from "react-icons/fa";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 
 // Customer interface
@@ -32,6 +32,59 @@ interface PaginationProps {
   has_previous: boolean;
 }
 
+// Delete Modal Component
+function DeleteModal({ 
+  isOpen, 
+  closeModal, 
+  customerName, 
+  onConfirm, 
+  isDeleting 
+}: { 
+  isOpen: boolean; 
+  closeModal: () => void; 
+  customerName: string; 
+  onConfirm: () => void; 
+  isDeleting: boolean;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <h3 className="text-lg font-semibold mb-2">Confirm Deletion</h3>
+        <p className="mb-4">
+          Are you sure you want to delete user <span className="font-semibold">{customerName}</span>? 
+          This action will also delete all associated orders, payments, and order items. 
+          This cannot be undone.
+        </p>
+        <div className="flex justify-end gap-3">
+          <button 
+            onClick={closeModal}
+            disabled={isDeleting}
+            className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={onConfirm}
+            disabled={isDeleting}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+          >
+            {isDeleting ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Deleting...
+              </>
+            ) : (
+              "Delete User"
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Customers() {
   const { user } = useAuthContext();
   const [query, setQuery] = useState("");
@@ -49,6 +102,87 @@ function Customers() {
   });
   const location = useLocation();
   const endpoint = import.meta.env.VITE_AWENIX_BACKEND_URL;
+  
+  // Delete modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState<CustomerProps | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const fetchAllCustomers = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        `${endpoint}/users/all?page=${pagination.current_page}&page_size=${pagination.page_size}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+        }
+      );
+      
+      // Update pagination state
+      setPagination({
+        total_items: res.data.total_items,
+        total_pages: res.data.total_pages,
+        current_page: res.data.current_page,
+        page_size: res.data.page_size,
+        has_next: res.data.has_next,
+        has_previous: res.data.has_previous
+      });
+      
+      // Map the response items to match our interface
+      const customersData = res.data.items.map((customer: any) => ({
+        id: customer.id,
+        name: customer.name,
+        email: customer.email,
+        phone_no: customer.phone_no,
+        user_type: customer.user_type,
+        created_at: customer.created_at,
+        profile_image: customer.profile_image
+      }));
+      
+      setCustomers(customersData);
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Error fetching customers");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const fetchMostActiveCustomers = async () => {
+    setActiveLoading(true);
+    try {
+      const res = await axios.get(
+        `${endpoint}/most-active-users?limit=5`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+        }
+      );
+      
+      // Map the response to match our interface
+      const activeCustomersData = res.data.map((customer: any) => ({
+        id: customer.id,
+        name: customer.name,
+        email: customer.email,
+        order_count: customer.order_count || 0,
+        total_spent: customer.total_spent || 0,
+        last_order_date: customer.last_order_date || new Date().toISOString(),
+        profile_image: customer.profile_image
+      }));
+      
+      setActiveCustomers(activeCustomersData);
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Error fetching active customers");
+      console.error(err);
+    } finally {
+      setActiveLoading(false);
+    }
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(location.search).get("q");
@@ -58,86 +192,8 @@ function Customers() {
       setQuery("");
     }
 
-    // Fetch all customers
-    const getAllCustomers = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(
-          `${endpoint}/users/all?page=${pagination.current_page}&page_size=${pagination.page_size}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${user.accessToken}`,
-            },
-          }
-        );
-        
-        // Update pagination state
-        setPagination({
-          total_items: res.data.total_items,
-          total_pages: res.data.total_pages,
-          current_page: res.data.current_page,
-          page_size: res.data.page_size,
-          has_next: res.data.has_next,
-          has_previous: res.data.has_previous
-        });
-        
-        // Map the response items to match our interface
-        const customersData = res.data.items.map((customer: any) => ({
-          id: customer.id,
-          name: customer.name,
-          email: customer.email,
-          phone_no: customer.phone_no,
-          user_type: customer.user_type,
-          created_at: customer.created_at,
-          profile_image: customer.profile_image
-        }));
-        
-        setCustomers(customersData);
-      } catch (err: any) {
-        toast.error(err.response?.data?.detail || "Error fetching customers");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    // Fetch most active customers
-    const getMostActiveCustomers = async () => {
-      setActiveLoading(true);
-      try {
-        const res = await axios.get(
-          `${endpoint}/most-active-users?limit=5`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${user.accessToken}`,
-            },
-          }
-        );
-        
-        // Map the response to match our interface
-        const activeCustomersData = res.data.map((customer: any) => ({
-          id: customer.id,
-          name: customer.name,
-          email: customer.email,
-          order_count: customer.order_count || 0,
-          total_spent: customer.total_spent || 0,
-          last_order_date: customer.last_order_date || new Date().toISOString(),
-          profile_image: customer.profile_image
-        }));
-        
-        setActiveCustomers(activeCustomersData);
-      } catch (err: any) {
-        toast.error(err.response?.data?.detail || "Error fetching active customers");
-        console.error(err);
-      } finally {
-        setActiveLoading(false);
-      }
-    };
-    
-    getAllCustomers();
-    getMostActiveCustomers();
+    fetchAllCustomers();
+    fetchMostActiveCustomers();
   }, [user, location, endpoint, pagination.current_page, pagination.page_size]);
 
   const handlePageChange = (newPage: number) => {
@@ -152,11 +208,60 @@ function Customers() {
     return `${date.getUTCDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
   };
 
+  const openDeleteModal = (customer: CustomerProps) => {
+    setCustomerToDelete(customer);
+    setIsModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setIsModalOpen(false);
+    setCustomerToDelete(null);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!customerToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      await axios.delete(
+        `${endpoint}/users/${customerToDelete.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+        }
+      );
+      
+      toast.success(`User ${customerToDelete.name} successfully deleted`);
+      
+      // Refresh customer lists
+      fetchAllCustomers();
+      fetchMostActiveCustomers();
+      
+      // Close modal
+      closeDeleteModal();
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Error deleting user");
+      console.error(err);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <section className="py-2 space-y-4 relative">
       <h4 className="font-semibold text-xl">
         {query ? `Showing customer results for ${query}` : "Customer Management"}
       </h4>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteModal 
+        isOpen={isModalOpen}
+        closeModal={closeDeleteModal}
+        customerName={customerToDelete?.name || ""}
+        onConfirm={handleDeleteUser}
+        isDeleting={isDeleting}
+      />
 
       {/* Most Active Customers Section */}
       <div className="mb-8">
@@ -221,7 +326,9 @@ function Customers() {
       <h5 className="font-semibold text-lg">All Customers</h5>
       
       {loading ? (
-        <p>Loading...</p>
+        <div className="flex justify-center items-center py-8">
+          <div className="w-8 h-8 border-4 border-default-700 border-t-transparent rounded-full animate-spin"></div>
+        </div>
       ) : customers.length >= 1 ? (
         <>
           <div className="overflow-x-auto">
@@ -231,6 +338,7 @@ function Customers() {
                   <th className="p-2 text-left">Name</th>
                   <th className="p-2 text-left">Email</th>
                   <th className="p-2 text-left">Customer Since</th>
+                  <th className="p-2 text-left">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -252,6 +360,18 @@ function Customers() {
                     </td>
                     <td className="p-2">{customer.email}</td>
                     <td className="p-2">{formatDate(customer.created_at)}</td>
+                    <td className="p-2">
+                      {/* Only show delete button for non-admin and non-self accounts */}
+                      {user.id !== customer.id && customer.user_type !== "admin" && (
+                        <button
+                          onClick={() => openDeleteModal(customer)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                          title="Delete user"
+                        >
+                          <FaTrash size={16} />
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
