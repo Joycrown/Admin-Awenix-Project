@@ -29,6 +29,7 @@ function ProductPopup({
       ...edit,
       product_image: isImageInputed ? edit.image : "",
       size,
+      removed: false
     });
   };
 

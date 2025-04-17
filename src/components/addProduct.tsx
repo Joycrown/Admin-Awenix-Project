@@ -27,6 +27,7 @@ function AddProduct({
     description: existingProduct?.description || "",
     product_image: "",
     size: existingProduct?.size || "kg",
+    removed: existingProduct?.removed || false,
   });
 
   const imageRef = useRef<HTMLInputElement>(null);
