@@ -18,7 +18,7 @@ function ScreenOne() {
     setLoading(true);
 
     axios
-      .put(`${endpoint}/set_password`, {
+      .post(`${endpoint}/forgot_password`, {
         email: mail,
       })
       .then(() => {

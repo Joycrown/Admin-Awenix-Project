@@ -54,7 +54,7 @@ function ScreenThree() {
       className="flex flex-col justify-center gap-4 text-black h-full w-full max-w-sm mx-auto"
     >
       {loading && <LoadingScreen />}
-      <h2>Forgot Password</h2>
+      <h2>Set New Password</h2>
       <p>Type in your new password</p>
 
       <PasswordInput
