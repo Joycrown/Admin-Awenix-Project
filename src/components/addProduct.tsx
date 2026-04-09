@@ -7,6 +7,7 @@ import { useAuthContext } from "../utils/authContext";
 import { toast } from "react-toastify";
 import LoadingScreen from "./loadingScreen";
 
+
 function AddProduct({
   existingProduct,
   updateList,
